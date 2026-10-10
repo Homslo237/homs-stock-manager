@@ -442,7 +442,7 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
     <div class="param-sec">
       <div class="param-ttl">👤 Compte / Account</div>
       <div class="param-item" onclick="doLogout()">
-        <div class="param-left"><div class="param-ico" style="background:rgba(220,38,38,0.12)">🚪</div><div><div class="param-name">Se déconnecter</div><div class="param-sub" id="set-email">-</div></div></div>
+        <div class="param-left"><div class="param-ico" style="background:rgba(220,38,38,0.12)">🚪</div><div><div class="param-name">Se déconnecter</div><div class="param-sub" id="acct-email">-</div></div></div>
         <span class="param-arr">›</span>
       </div>
     </div>
@@ -1717,7 +1717,7 @@ function bootApp(){
   applyTheme(DB.settings.theme||'light');
   document.querySelectorAll('.lbl-devise').forEach(el=>el.textContent=DB.settings.devise||'FCFA');
   refreshHome();
-  const em=document.getElementById('set-email');
+  const em=document.getElementById('acct-email');
   if(em&&SESSION&&SESSION.user)em.textContent=SESSION.user.email||'-';
   initCloud();
 }

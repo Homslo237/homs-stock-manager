@@ -698,6 +698,26 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
       <div id="auth-msg" style="min-height:20px;font-size:12.5px;margin:10px 0 4px;text-align:center"></div>
       <button class="btn-p" id="auth-btn-login" onclick="doLogin()">Se connecter</button>
       <button class="btn-p" id="auth-btn-signup" style="background:transparent;color:var(--accent);border:1.5px solid var(--accent)" onclick="doSignup()">Créer mon compte</button>
+      <button id="auth-btn-forgot" style="background:none;border:none;color:var(--accent);font-size:13px;margin-top:14px;width:100%;cursor:pointer;text-decoration:underline" onclick="doForgot()">Mot de passe oublié ?</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NOUVEAU MOT DE PASSE ══ -->
+<div id="reset-screen" style="position:fixed;inset:0;z-index:850;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow-y:auto">
+  <div style="width:100%;max-width:380px">
+    <div style="text-align:center;margin-bottom:22px">
+      <div style="font-size:44px">🔑</div>
+      <div style="font-size:20px;font-weight:800;color:var(--accent)">Nouveau mot de passe</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:4px">Choisis un mot de passe que tu noteras bien</div>
+    </div>
+    <div style="background:var(--card);border:1.5px solid var(--border2);border-radius:16px;padding:18px">
+      <label class="f-lbl">Nouveau mot de passe</label>
+      <input class="f-inp" id="reset-pw1" type="password" autocomplete="new-password" placeholder="6 caractères minimum">
+      <label class="f-lbl" style="margin-top:12px">Répète-le</label>
+      <input class="f-inp" id="reset-pw2" type="password" autocomplete="new-password" placeholder="Même mot de passe" onkeydown="if(event.key==='Enter')doReset()">
+      <div id="reset-msg" style="min-height:20px;font-size:12.5px;margin:10px 0 4px;text-align:center"></div>
+      <button class="btn-p" id="reset-btn" onclick="doReset()">Enregistrer le mot de passe</button>
     </div>
   </div>
 </div>
@@ -1651,13 +1671,14 @@ async function initCloud(){
 function showAuth(msg){document.getElementById('auth-screen').style.display='flex';setAuthMsg(msg||'');}
 function hideAuth(){document.getElementById('auth-screen').style.display='none';}
 function setAuthMsg(m,ok){const e=document.getElementById('auth-msg');e.textContent=m||'';e.style.color=ok?'#16a34a':'#dc2626';}
-function setAuthBusy(b){['auth-btn-login','auth-btn-signup'].forEach(id=>{const e=document.getElementById(id);if(e){e.disabled=b;e.style.opacity=b?'0.6':'1';}});}
+function setAuthBusy(b){['auth-btn-login','auth-btn-signup','auth-btn-forgot'].forEach(id=>{const e=document.getElementById(id);if(e){e.disabled=b;e.style.opacity=b?'0.6':'1';}});}
 function authErr(r){
   const d=r.data||{};const m=String(d.msg||d.error_description||d.message||d.error||'');
   if(r.net)return 'Pas de connexion Internet';
   if(/invalid login/i.test(m))return 'E-mail ou mot de passe incorrect';
   if(/already registered|already been registered/i.test(m))return 'Cet e-mail a déjà un compte. Connecte-toi.';
   if(/not confirmed/i.test(m))return "Confirme d'abord ton e-mail";
+  if(/different from the old|same as the old/i.test(m))return "Choisis un mot de passe différent de l'ancien";
   if(/password/i.test(m))return 'Mot de passe : 6 caractères minimum';
   if(/rate limit/i.test(m))return 'Trop d\'essais, réessaie dans quelques minutes';
   return m||('Erreur '+r.status);
@@ -1691,6 +1712,46 @@ async function doSignup(){
     setAuthMsg('Compte créé ! Vérifie ton e-mail pour confirmer, puis connecte-toi.',true);
   }else{setAuthMsg(authErr(r));}
 }
+let RECOVERY=null;
+async function doForgot(){
+  const email=document.getElementById('auth-email').value.trim().toLowerCase();
+  if(!email){setAuthMsg("Écris d'abord ton e-mail dans la case ci-dessus");return;}
+  setAuthBusy(true);setAuthMsg('Envoi...',true);
+  const back=encodeURIComponent(location.origin+'/');
+  const r=await authCall('recover?redirect_to='+back,{email});
+  setAuthBusy(false);
+  if(r.ok)setAuthMsg("Si ce compte existe, un e-mail vient d'être envoyé. Vérifie ta boîte (et les spams).",true);
+  else setAuthMsg(authErr(r));
+}
+function parseHash(){
+  const h=String(location.hash||'').replace(/^#/,'');
+  if(!h)return null;
+  const q=new URLSearchParams(h);
+  return{type:q.get('type'),access_token:q.get('access_token'),refresh_token:q.get('refresh_token'),expires_in:q.get('expires_in'),error:q.get('error_code')||q.get('error')};
+}
+function showReset(){document.getElementById('reset-screen').style.display='flex';}
+function hideReset(){document.getElementById('reset-screen').style.display='none';}
+function setResetMsg(m,ok){const e=document.getElementById('reset-msg');e.textContent=m||'';e.style.color=ok?'#16a34a':'#dc2626';}
+async function doReset(){
+  if(!RECOVERY){hideReset();showAuth('Lien expiré. Refais « Mot de passe oublié ».');return;}
+  const p1=document.getElementById('reset-pw1').value;
+  const p2=document.getElementById('reset-pw2').value;
+  if(p1.length<6){setResetMsg('Mot de passe : 6 caractères minimum');return;}
+  if(p1!==p2){setResetMsg('Les deux mots de passe sont différents');return;}
+  const btn=document.getElementById('reset-btn');btn.disabled=true;setResetMsg('Enregistrement...',true);
+  try{
+    const r=await fetch(SB_URL+'/auth/v1/user',{method:'PUT',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+RECOVERY.access_token},body:JSON.stringify({password:p1})});
+    const t=await r.text();let j={};try{j=t?JSON.parse(t):{};}catch(e){}
+    btn.disabled=false;
+    if(!r.ok){setResetMsg(authErr({ok:false,status:r.status,data:j,net:false}));return;}
+    saveSession({access_token:RECOVERY.access_token,refresh_token:RECOVERY.refresh_token,
+      expires_at:Math.floor(Date.now()/1000)+(Number(RECOVERY.expires_in)||3600),user:{id:j.id,email:j.email}});
+    RECOVERY=null;
+    document.getElementById('reset-pw1').value='';document.getElementById('reset-pw2').value='';
+    hideReset();hideAuth();bootApp();
+    try{toast('✅ Mot de passe changé');}catch(e){}
+  }catch(e){btn.disabled=false;setResetMsg('Pas de connexion Internet');}
+}
 async function doLogout(){
   if(!confirm('Se déconnecter ?'))return;
   const tok=SESSION&&SESSION.access_token;
@@ -1722,6 +1783,12 @@ function bootApp(){
   initCloud();
 }
 async function startAuth(){
+  const hp=parseHash();
+  if(hp&&(hp.access_token||hp.error)){
+    try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
+    if(hp.error){showAuth('Lien expiré ou déjà utilisé. Refais « Mot de passe oublié ».');return;}
+    if(hp.type==='recovery'&&hp.access_token){RECOVERY=hp;showReset();return;}
+  }
   SESSION=readSession();
   if(SESSION&&SESSION.access_token){
     if(SESSION.expires_at-Math.floor(Date.now()/1000)<60){

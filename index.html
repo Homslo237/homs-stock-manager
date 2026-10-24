@@ -247,6 +247,7 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
 
 <!-- ══ ACCUEIL ══ -->
 <div class="screen active" id="s-home">
+  <div id="essai-banner" style="display:none;text-align:center;color:#fff;font-weight:700;font-size:13px;padding:8px 12px"></div>
   <div class="hero">
     <div class="hero-top">
       <div class="logo-row">
@@ -443,6 +444,10 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
       <div class="param-ttl">👤 Compte / Account</div>
       <div class="param-item" onclick="doLogout()">
         <div class="param-left"><div class="param-ico" style="background:rgba(220,38,38,0.12)">🚪</div><div><div class="param-name">Se déconnecter</div><div class="param-sub" id="acct-email">-</div></div></div>
+        <span class="param-arr">›</span>
+      </div>
+      <div class="param-item" id="admin-card" style="display:none" onclick="openAdmin()">
+        <div class="param-left"><div class="param-ico" style="background:rgba(24,95,165,0.12)">🛡️</div><div><div class="param-name">Admin : comptes clients</div><div class="param-sub">Essais, activer, bloquer</div></div></div>
         <span class="param-arr">›</span>
       </div>
     </div>
@@ -718,6 +723,30 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
       <input class="f-inp" id="reset-pw2" type="password" autocomplete="new-password" placeholder="Même mot de passe" onkeydown="if(event.key==='Enter')doReset()">
       <div id="reset-msg" style="min-height:20px;font-size:12.5px;margin:10px 0 4px;text-align:center"></div>
       <button class="btn-p" id="reset-btn" onclick="doReset()">Enregistrer le mot de passe</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ACCÈS SUSPENDU ══ -->
+<div id="bloque-screen" style="position:fixed;inset:0;z-index:790;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center">
+  <div style="width:100%;max-width:380px">
+    <div style="font-size:52px">🔒</div>
+    <div id="bloque-titre" style="font-size:22px;font-weight:800;color:var(--accent);margin-top:8px">Accès suspendu</div>
+    <div id="bloque-msg" style="font-size:14px;color:var(--text2);margin:12px 0 22px"></div>
+    <button class="btn-p" onclick="retryProfil()">🔄 J'ai été activé : réessayer</button>
+    <button class="btn-p" style="background:transparent;color:var(--accent);border:1.5px solid var(--accent)" onclick="doLogout()">Se déconnecter</button>
+  </div>
+</div>
+
+<!-- ══ PANEL ADMIN ══ -->
+<div class="recu-bg" id="m-admin">
+  <div class="recu-box" style="max-width:420px">
+    <div style="padding:14px 16px 4px;font-weight:800;font-size:16px;color:#185FA5">🛡️ Admin : comptes clients</div>
+    <div id="admin-count" style="padding:0 16px 8px;font-size:12px;color:#666"></div>
+    <div id="admin-list"></div>
+    <div class="recu-acts">
+      <button class="recu-act" style="background:#e5e5e5;color:#333" onclick="renderAdmin()">🔄 Actualiser</button>
+      <button class="recu-act r-close" onclick="closeModal('m-admin')">✕ Fermer</button>
     </div>
   </div>
 </div>
@@ -1752,11 +1781,123 @@ async function doReset(){
     try{toast('✅ Mot de passe changé');}catch(e){}
   }catch(e){btn.disabled=false;setResetMsg('Pas de connexion Internet');}
 }
+// ══ ESSAI 14 JOURS + ADMIN ══
+let PROFIL=null,IS_ADMIN=false,ADMIN_ROWS=[];
+function escH(x){return String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function joursRestants(fin){const t=Date.parse(fin);if(isNaN(t))return null;return Math.ceil((t-Date.now())/864e5);}
+function profilKey(){return 'homs_profil_'+(SESSION&&SESSION.user?SESSION.user.id:'');}
+// 'ok' (actif ou inconnu) | 'essai' | 'fini' | 'bloque'
+function etatAcces(p){
+  if(!p)return 'ok';
+  if(p.statut==='bloque')return 'bloque';
+  if(p.statut==='actif')return 'ok';
+  const j=joursRestants(p.essai_fin);
+  if(j===null)return 'ok';
+  return j>0?'essai':'fini';
+}
+function appliquerProfil(){
+  const etat=etatAcces(PROFIL);
+  const ban=document.getElementById('essai-banner');
+  const blk=document.getElementById('bloque-screen');
+  const card=document.getElementById('admin-card');
+  if(card)card.style.display=IS_ADMIN?'':'none';
+  if(ban){
+    if(IS_ADMIN||etat!=='essai'){ban.style.display='none';}
+    else{
+      const j=joursRestants(PROFIL.essai_fin);
+      ban.textContent='⏳ Essai gratuit : il vous reste '+j+' jour'+(j>1?'s':'');
+      ban.style.background=j<=3?'#dc2626':'#f59e0b';
+      ban.style.display='block';
+    }
+  }
+  if(blk){
+    if(!IS_ADMIN&&(etat==='bloque'||etat==='fini')){
+      document.getElementById('bloque-titre').textContent=etat==='bloque'?'Accès suspendu':'Essai terminé';
+      document.getElementById('bloque-msg').textContent=etat==='bloque'
+        ?"Ton compte est suspendu. Contacte l'administrateur pour le réactiver."
+        :"Ton essai gratuit de 14 jours est terminé. Contacte l'administrateur pour activer ton compte.";
+      blk.style.display='flex';
+    }else{blk.style.display='none';}
+  }
+}
+async function loadProfil(){
+  if(!SESSION||!SESSION.user)return;
+  const uid=SESSION.user.id;
+  let cache=null;
+  try{const c=localStorage.getItem(profilKey());if(c)cache=JSON.parse(c);}catch(e){}
+  if(cache){PROFIL=cache.profil||null;IS_ADMIN=!!cache.admin;appliquerProfil();}
+  const rows=await sbReq('profils','GET',null,'?select=user_id,statut,essai_fin,cree_le&user_id=eq.'+encodeURIComponent(uid));
+  const adm=await sbReq('admins','GET',null,'?select=user_id&user_id=eq.'+encodeURIComponent(uid));
+  if(rows===null&&adm===null){appliquerProfil();return;}
+  PROFIL=(Array.isArray(rows)&&rows.length)?rows[0]:null;
+  IS_ADMIN=Array.isArray(adm)&&adm.length>0;
+  try{localStorage.setItem(profilKey(),JSON.stringify({profil:PROFIL,admin:IS_ADMIN}));}catch(e){}
+  appliquerProfil();
+}
+async function retryProfil(){
+  await loadProfil();
+  const etat=etatAcces(PROFIL);
+  if(IS_ADMIN||etat==='ok'||etat==='essai')toast('✅ Accès rétabli');
+  else toast('⚠️ Toujours suspendu',false);
+}
+function resetProfilUI(){
+  PROFIL=null;IS_ADMIN=false;ADMIN_ROWS=[];
+  ['essai-banner','bloque-screen'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+  const card=document.getElementById('admin-card');if(card)card.style.display='none';
+  try{closeModal('m-admin');}catch(e){}
+}
+async function openAdmin(){
+  if(!IS_ADMIN)return;
+  openModal('m-admin');
+  await renderAdmin();
+}
+async function renderAdmin(){
+  const box=document.getElementById('admin-list');
+  box.innerHTML='<div style="padding:14px;text-align:center;color:#666">Chargement...</div>';
+  const rows=await sbReq('profils','GET',null,'?select=user_id,email,statut,cree_le,essai_fin&order=cree_le.desc');
+  if(rows===null){box.innerHTML='<div style="padding:14px;text-align:center;color:#dc2626">Impossible de charger la liste (hors-ligne ?)</div>';return;}
+  ADMIN_ROWS=rows;
+  document.getElementById('admin-count').textContent=rows.length+' compte'+(rows.length>1?'s':'');
+  const me=SESSION&&SESSION.user?SESSION.user.id:'';
+  const bt=(txt,act,id,bg)=>'<button style="flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:11px;font-weight:700;color:#fff;background:'+bg+';cursor:pointer" onclick="adminAct(\''+escH(id)+'\',\''+act+'\')">'+txt+'</button>';
+  box.innerHTML=rows.map(r=>{
+    const etat=etatAcces(r),j=joursRestants(r.essai_fin);
+    const lab=etat==='ok'?'✅ Actif':etat==='bloque'?'⛔ Bloqué':etat==='essai'?'⏳ Essai : '+j+' j':'⌛ Essai terminé';
+    const date=r.cree_le?new Date(r.cree_le).toLocaleDateString('fr-FR'):'-';
+    let btns='';
+    if(r.user_id===me){btns='<div style="font-size:11px;color:#666">(ton compte)</div>';}
+    else{
+      if(r.statut!=='actif')btns+=bt('Activer','activer',r.user_id,'#16a34a');
+      if(r.statut!=='bloque')btns+=bt('Bloquer','bloquer',r.user_id,'#dc2626');
+      if(r.statut!=='actif')btns+=bt('+7 jours','plus7',r.user_id,'#185FA5');
+      btns='<div style="display:flex;gap:6px">'+btns+'</div>';
+    }
+    return '<div style="padding:10px 16px;border-top:1px solid #eee"><div style="font-weight:700;font-size:13px;word-break:break-all">'+escH(r.email||'(sans e-mail)')+'</div><div style="font-size:12px;color:#666;margin:2px 0 8px">'+lab+' · inscrit le '+date+'</div>'+btns+'</div>';
+  }).join('')||'<div style="padding:14px;text-align:center;color:#666">Aucun compte</div>';
+}
+async function adminAct(id,action){
+  if(!IS_ADMIN)return;
+  if(SESSION&&SESSION.user&&SESSION.user.id===id){toast('⚠️ Tu ne peux pas modifier ton propre compte ici',false);return;}
+  let body;
+  if(action==='activer'){body={statut:'actif'};}
+  else if(action==='bloquer'){if(!confirm('Bloquer ce compte ?'))return;body={statut:'bloque'};}
+  else if(action==='plus7'){
+    const row=ADMIN_ROWS.find(r=>r.user_id===id);
+    const base=Math.max(Date.now(),row?(Date.parse(row.essai_fin)||0):0);
+    body={essai_fin:new Date(base+7*864e5).toISOString(),statut:'essai'};
+  }else return;
+  const r=await sbReq('profils','PATCH',body,'?user_id=eq.'+encodeURIComponent(id));
+  if(r===null)toast('⚠️ Erreur : modification refusée',false);
+  else if(!r.length)toast('⚠️ Rien n\'a été modifié',false);
+  else toast('✅ Compte mis à jour');
+  await renderAdmin();
+}
+
 async function doLogout(){
   if(!confirm('Se déconnecter ?'))return;
   const tok=SESSION&&SESSION.access_token;
   if(tok)authCall('logout',{},tok);
-  clearSession();DB=defaultDB();
+  clearSession();DB=defaultDB();resetProfilUI();
   try{nav('s-home');}catch(e){}
   showAuth('');
 }
@@ -1781,6 +1922,7 @@ function bootApp(){
   const em=document.getElementById('acct-email');
   if(em&&SESSION&&SESSION.user)em.textContent=SESSION.user.email||'-';
   initCloud();
+  loadProfil();
 }
 async function startAuth(){
   const hp=parseHash();

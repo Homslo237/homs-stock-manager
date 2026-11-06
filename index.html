@@ -44,7 +44,7 @@
 html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;max-width:430px;margin:0 auto}
 
 /* ══ SCREENS ══ */
-.screen{display:none;flex-direction:column;min-height:100vh}
+.screen{display:none;flex-direction:column;min-height:calc(100vh - var(--bh,0px))}
 .screen.active{display:flex}
 
 /* ══ HEADER ══ */
@@ -246,8 +246,8 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
 <body>
 
 <!-- ══ ACCUEIL ══ -->
+<div id="essai-banner" role="status" style="display:none;position:sticky;top:0;z-index:150;text-align:center;font-weight:700;font-size:13px;padding:9px 12px;border-bottom:1px solid rgba(0,0,0,.08)"></div>
 <div class="screen active" id="s-home">
-  <div id="essai-banner" style="display:none;text-align:center;color:#fff;font-weight:700;font-size:13px;padding:8px 12px"></div>
   <div class="hero">
     <div class="hero-top">
       <div class="logo-row">
@@ -294,14 +294,12 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
   </div>
 
   <div class="section" style="margin-top:16px">
-    <div class="sec-lbl">Menu / Navigation</div>
     <div class="nav-grid">
       <div class="nav-btn" onclick="nav('s-products')"><div class="nav-ico" style="background:rgba(24,95,165,0.12)">📦</div><div><div class="nav-lbl">Produits</div><div class="nav-sub">Products</div></div></div>
       <div class="nav-btn" onclick="openEntreeModal()"><div class="nav-ico" style="background:rgba(22,163,74,0.12)">📥</div><div><div class="nav-lbl">Entrées</div><div class="nav-sub">Stock in</div></div></div>
       <div class="nav-btn" onclick="nav('s-caisse')"><div class="nav-ico" style="background:rgba(217,119,6,0.12)">🛒</div><div><div class="nav-lbl">Caisse</div><div class="nav-sub">Sales</div></div></div>
       <div class="nav-btn" onclick="nav('s-reports')"><div class="nav-ico" style="background:rgba(83,74,183,0.12)">📊</div><div><div class="nav-lbl">Rapports</div><div class="nav-sub">Reports</div></div></div>
-      <div class="nav-btn" onclick="toast('Impression Bluetooth — bientôt / Coming soon')"><div class="nav-ico" style="background:rgba(153,53,86,0.12)">🖨️</div><div><div class="nav-lbl">Impression</div><div class="nav-sub">Print</div></div></div>
-      <div class="nav-btn" onclick="nav('s-settings')"><div class="nav-ico" style="background:rgba(100,100,100,0.12)">⚙️</div><div><div class="nav-lbl">Paramètres</div><div class="nav-sub">Settings</div></div></div>
+      <div class="nav-btn" style="grid-column:1/-1" onclick="nav('s-settings')"><div class="nav-ico" style="background:rgba(100,100,100,0.12)">⚙️</div><div><div class="nav-lbl">Paramètres</div><div class="nav-sub">Settings</div></div></div>
     </div>
   </div>
 
@@ -312,10 +310,10 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
   <div class="spacer"></div>
   <div class="bnav">
     <div class="bn on" onclick="nav('s-home')"><div class="bn-ico">🏠</div><div class="bn-lbl">Accueil</div></div>
-    <div class="bn" onclick="nav('s-products')"><div class="bn-ico">📦</div><div class="bn-lbl">Stock</div></div>
+    <div class="bn" onclick="nav('s-products')"><div class="bn-ico">📦</div><div class="bn-lbl">Produits</div></div>
     <div class="bn" onclick="nav('s-caisse')"><div class="bn-ico">🛒</div><div class="bn-lbl">Caisse</div></div>
     <div class="bn" onclick="nav('s-reports')"><div class="bn-ico">📊</div><div class="bn-lbl">Rapports</div></div>
-    <div class="bn" onclick="nav('s-settings')"><div class="bn-ico">⚙️</div><div class="bn-lbl">Plus</div></div>
+    <div class="bn" onclick="nav('s-settings')"><div class="bn-ico">⚙️</div><div class="bn-lbl">Paramètres</div></div>
   </div>
 </div>
 
@@ -383,10 +381,10 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
   </div>
   <div class="bnav">
     <div class="bn" onclick="nav('s-home')"><div class="bn-ico">🏠</div><div class="bn-lbl">Accueil</div></div>
-    <div class="bn" onclick="nav('s-products')"><div class="bn-ico">📦</div><div class="bn-lbl">Stock</div></div>
+    <div class="bn" onclick="nav('s-products')"><div class="bn-ico">📦</div><div class="bn-lbl">Produits</div></div>
     <div class="bn on"><div class="bn-ico">🛒</div><div class="bn-lbl">Caisse</div></div>
     <div class="bn" onclick="nav('s-reports')"><div class="bn-ico">📊</div><div class="bn-lbl">Rapports</div></div>
-    <div class="bn" onclick="nav('s-settings')"><div class="bn-ico">⚙️</div><div class="bn-lbl">Plus</div></div>
+    <div class="bn" onclick="nav('s-settings')"><div class="bn-ico">⚙️</div><div class="bn-lbl">Paramètres</div></div>
   </div>
 </div>
 
@@ -425,10 +423,10 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
   <div class="spacer"></div>
   <div class="bnav">
     <div class="bn" onclick="nav('s-home')"><div class="bn-ico">🏠</div><div class="bn-lbl">Accueil</div></div>
-    <div class="bn" onclick="nav('s-products')"><div class="bn-ico">📦</div><div class="bn-lbl">Stock</div></div>
+    <div class="bn" onclick="nav('s-products')"><div class="bn-ico">📦</div><div class="bn-lbl">Produits</div></div>
     <div class="bn" onclick="nav('s-caisse')"><div class="bn-ico">🛒</div><div class="bn-lbl">Caisse</div></div>
     <div class="bn on"><div class="bn-ico">📊</div><div class="bn-lbl">Rapports</div></div>
-    <div class="bn" onclick="nav('s-settings')"><div class="bn-ico">⚙️</div><div class="bn-lbl">Plus</div></div>
+    <div class="bn" onclick="nav('s-settings')"><div class="bn-ico">⚙️</div><div class="bn-lbl">Paramètres</div></div>
   </div>
 </div>
 
@@ -538,10 +536,10 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
   <div class="spacer"></div>
   <div class="bnav">
     <div class="bn" onclick="nav('s-home')"><div class="bn-ico">🏠</div><div class="bn-lbl">Accueil</div></div>
-    <div class="bn" onclick="nav('s-products')"><div class="bn-ico">📦</div><div class="bn-lbl">Stock</div></div>
+    <div class="bn" onclick="nav('s-products')"><div class="bn-ico">📦</div><div class="bn-lbl">Produits</div></div>
     <div class="bn" onclick="nav('s-caisse')"><div class="bn-ico">🛒</div><div class="bn-lbl">Caisse</div></div>
     <div class="bn" onclick="nav('s-reports')"><div class="bn-ico">📊</div><div class="bn-lbl">Rapports</div></div>
-    <div class="bn on"><div class="bn-ico">⚙️</div><div class="bn-lbl">Plus</div></div>
+    <div class="bn on"><div class="bn-ico">⚙️</div><div class="bn-lbl">Paramètres</div></div>
   </div>
 </div>
 
@@ -1806,9 +1804,11 @@ function appliquerProfil(){
     else{
       const j=joursRestants(PROFIL.essai_fin);
       ban.textContent='⏳ Essai gratuit : il vous reste '+j+' jour'+(j>1?'s':'');
-      ban.style.background=j<=3?'#dc2626':'#f59e0b';
+      ban.style.background=j<=3?'#FEE2E2':'#FEF3C7';
+      ban.style.color=j<=3?'#991B1B':'#7A4A00';
       ban.style.display='block';
     }
+    document.documentElement.style.setProperty('--bh',(ban.style.display==='block'?ban.offsetHeight:0)+'px');
   }
   if(blk){
     if(!IS_ADMIN&&(etat==='bloque'||etat==='fini')){

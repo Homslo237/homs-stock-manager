@@ -237,6 +237,28 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
 /* ══ TOAST ══ */
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#22c55e;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
+/* ── CAISSE v2 ── */
+#s-caisse.active{height:calc(100vh - var(--bh,0px));height:calc(100dvh - var(--bh,0px));min-height:0;overflow:hidden}
+#s-caisse .search-wrap{align-items:center}
+#s-caisse .search-inp{min-width:0;padding:13px 14px;font-size:15px;border-radius:14px}
+#s-caisse .scan-btn{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;padding:0 14px;min-height:48px;border-radius:14px}
+.pgrid{flex:1;min-height:0;overflow-y:auto;padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
+.ptile{position:relative;text-align:left;border:1.5px solid var(--border2);border-radius:16px;background:var(--card);padding:14px;min-height:92px;display:flex;flex-direction:column;gap:4px;cursor:pointer;color:var(--text);font-family:inherit}
+.ptile:active{transform:scale(.98)}
+.ptile.sel{border:2px solid var(--accent2);background:rgba(24,95,165,.10)}
+.ptile.out{opacity:.5;cursor:not-allowed}
+.ptile-name{font-size:15px;font-weight:700;line-height:1.2;padding-right:22px}
+.ptile-price{font-size:14px;font-weight:800;color:var(--accent)}
+.ptile-stock{font-size:12px;color:var(--text2)}
+.ptile-badge{position:absolute;top:8px;right:8px;min-width:24px;height:24px;border-radius:12px;background:var(--accent2);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.cg-empty{grid-column:1/-1;text-align:center;color:var(--text2);font-size:14px;padding:30px 10px}
+#s-caisse .cart-sec{flex:none;max-height:26vh;overflow-y:auto;padding:6px 16px}
+#s-caisse .cart-ttl{display:none}
+#s-caisse .cart-sum{flex:none;padding:12px 16px 12px}
+#s-caisse .pay-btn{padding:10px 4px;font-size:13px;border-radius:12px;min-height:44px;display:flex;align-items:center;justify-content:center}
+#s-caisse .btn-p.encaisser{background:#15803D;font-size:17px;padding:15px;border-radius:16px;margin-top:2px}
+#s-caisse .btn-p.encaisser:disabled{background:var(--border2);color:var(--text3);cursor:not-allowed}
+#s-caisse .vider{background:none;border:none;color:var(--text2);font-size:13px;font-weight:600;padding:8px;width:100%;cursor:pointer;text-decoration:underline}
 .empty{text-align:center;padding:40px 20px;color:var(--text2)}
 .empty-ico{font-size:44px;margin-bottom:12px}
 .spacer{height:80px}
@@ -358,13 +380,14 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
 <div class="screen" id="s-caisse">
   <div class="hdr">
     <div class="hdr-back" onclick="nav('s-home')">←</div>
-    <div class="hdr-title"><h2>Caisse / Sales</h2><p id="cart-hdr">0 article(s)</p></div>
+    <div class="hdr-title"><h2>Nouvelle vente</h2><p id="cart-hdr">0 article(s)</p></div>
   </div>
   <div class="search-wrap">
-    <input class="search-inp" id="caisse-search" placeholder="🔍 Ajouter un produit..." oninput="renderCaisseSearch()">
-    <button class="scan-btn" onclick="openScan('caisse')">📷</button>
+    <input class="search-inp" id="caisse-search" aria-label="Chercher un produit" placeholder="Chercher un produit" oninput="renderCaisseGrid()">
+    <button class="scan-btn" onclick="openScan('caisse')" aria-label="Scanner un code-barres"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/></svg>Scanner</button>
   </div>
-  <div id="caisse-results" style="padding:0 16px;max-height:200px;overflow-y:auto"></div>
+  <div id="caisse-results" style="display:none"></div>
+  <div class="pgrid" id="caisse-grid"></div>
   <div class="cart-sec">
     <div class="cart-ttl">🛒 Panier / Cart</div>
     <div id="cart-items"></div>
@@ -372,12 +395,12 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
   <div class="cart-sum">
     <div class="total-row"><span class="total-lbl">TOTAL</span><span class="total-val" id="cart-total">0</span></div>
     <div class="pay-btns">
-      <div class="pay-btn on" id="pay-cash" onclick="setPay('cash')">💵 Espèces</div>
-      <div class="pay-btn" id="pay-momo" onclick="setPay('momo')">📱 Mobile Money</div>
-      <div class="pay-btn" id="pay-card" onclick="setPay('card')">💳 Carte</div>
+      <div class="pay-btn on" id="pay-cash" onclick="setPay('cash')">Espèces</div>
+      <div class="pay-btn" id="pay-momo" onclick="setPay('momo')">Mobile Money</div>
+      <div class="pay-btn" id="pay-card" onclick="setPay('card')">Carte</div>
     </div>
-    <button class="btn-p" onclick="confirmSale()">✅ Valider la vente / Confirm sale</button>
-    <button class="btn-s" onclick="clearCart()">🗑️ Vider / Clear</button>
+    <button class="btn-p encaisser" id="btn-encaisser" onclick="confirmSale()" disabled>Encaisser</button>
+    <button class="vider" onclick="clearCart()">Vider le panier</button>
   </div>
   <div class="bnav">
     <div class="bn" onclick="nav('s-home')"><div class="bn-ico">🏠</div><div class="bn-lbl">Accueil</div></div>
@@ -1144,13 +1167,34 @@ function changeQty(id,d){
   renderCart();
 }
 function clearCart(){cart=[];renderCart();}
+function renderCaisseGrid(){
+  const el=document.getElementById('caisse-grid');
+  if(!el||!DB||!DB.products)return;
+  const qEl=document.getElementById('caisse-search');
+  const q=((qEl&&qEl.value)||'').trim().toLowerCase();
+  const d=getDevise();
+  if(!DB.products.length){el.innerHTML='<div class="cg-empty">Aucun produit pour l\'instant.<br>Ajoute ton premier produit dans l\'onglet Produits.</div>';return;}
+  const list=DB.products.filter(p=>!q||String(p.name).toLowerCase().includes(q)||String(p.barcode||'').toLowerCase().includes(q));
+  if(!list.length){el.innerHTML='<div class="cg-empty">Aucun résultat</div>';return;}
+  el.innerHTML=list.map(p=>{
+    const st=calcStock(p.id),inCart=cart.find(c=>c.id===p.id),n=inCart?inCart.qty:0,out=st<=0;
+    return '<button class="ptile'+(n?' sel':'')+(out?' out':'')+'"'+(out?' disabled':'')+' onclick="addToCart(\''+escH(p.id)+'\')">'
+      +(n?'<span class="ptile-badge">'+n+'</span>':'')
+      +'<span class="ptile-name">'+escH(p.name)+'</span>'
+      +'<span class="ptile-price">'+fmt(p.vente)+' '+d+'</span>'
+      +'<span class="ptile-stock">'+(out?'Rupture':'Stock : '+st)+'</span></button>';
+  }).join('');
+}
 function renderCart(){
   const total=cart.reduce((s,c)=>s+c.prix*c.qty,0);
   const d=getDevise();
+  renderCaisseGrid();
+  const be=document.getElementById('btn-encaisser');
+  if(be){be.disabled=!cart.length;be.textContent=cart.length?'Encaisser '+fmt(total)+' '+d:'Encaisser';}
   document.getElementById('cart-total').textContent=fmt(total)+' '+d;
   document.getElementById('cart-hdr').textContent=cart.length+' article(s)';
   const el=document.getElementById('cart-items');
-  if(!cart.length){el.innerHTML='<div class="empty" style="padding:20px"><div class="empty-ico" style="font-size:32px">🛒</div><p style="font-size:13px">Panier vide</p></div>';return;}
+  if(!cart.length){el.innerHTML='<div style="padding:10px;text-align:center;color:var(--text2);font-size:13px">Touche un produit pour l\'ajouter</div>';return;}
   el.innerHTML=cart.map(c=>`
     <div class="cart-item">
       <div style="flex:1"><div class="cart-name">${c.name}</div><div class="cart-sub">${fmt(c.prix)} ${d} × ${c.qty}</div></div>
@@ -1897,7 +1941,7 @@ async function doLogout(){
   if(!confirm('Se déconnecter ?'))return;
   const tok=SESSION&&SESSION.access_token;
   if(tok)authCall('logout',{},tok);
-  clearSession();DB=defaultDB();resetProfilUI();
+  clearSession();DB=defaultDB();cart=[];payMode='cash';resetProfilUI();
   try{nav('s-home');}catch(e){}
   showAuth('');
 }

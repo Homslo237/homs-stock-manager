@@ -681,7 +681,9 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
   <div class="recu-box">
     <div id="recu-content"></div>
     <div style="padding:10px 16px 0;background:#f5f5f5">
-      <button class="recu-act" id="btn-recu-img" style="width:100%;min-height:48px;background:#15803D;color:#fff;font-size:15px" data-i18n="rcpt.print" onclick="shareReceiptImage()">🖨️ Imprimer le reçu</button>
+      <button class="recu-act" id="btn-recu-img" style="width:100%;min-height:48px;background:#15803D;color:#fff;font-size:15px" data-i18n="rcpt.print" onclick="printReceiptDirect()">🖨️ Imprimer le reçu</button>
+      <div id="prn-msg" role="status" style="font-size:12px;min-height:16px;margin:6px 2px 0;color:#555;text-align:center"></div>
+      <button class="recu-act" id="btn-recu-share" style="width:100%;min-height:36px;margin-top:4px;background:#e5e5e5;color:#333;font-size:12px" data-i18n="rcpt.share" onclick="shareReceiptImage()">📤 Partager en image</button>
     </div>
     <div class="recu-acts">
       <button class="recu-act r-print" data-i18n="btn.print" onclick="printRecu()">🖨️ Imprimer</button>
@@ -947,6 +949,8 @@ Object.assign(I18N.fr,{"shop.default":"Ma Boutique","set.title": "Paramètres", 
 Object.assign(I18N.en,{"shop.default":"My Shop","set.title": "Settings", "set.account": "👤 Account", "set.logout": "Log out", "set.admin": "Admin: customer accounts", "set.adminSub": "Trials, activate, block", "set.lang": "🌐 Language", "set.shop": "🏪 Shop", "set.shopName": "Shop name", "set.addr": "Address", "set.phone": "Phone", "set.email": "Email", "set.logo": "Shop logo", "set.notF": "Not provided", "set.notM": "Not provided", "set.logoAdd": "Tap to add", "set.logoDone": "Logo added ✅", "set.currency": "💰 Currency", "cur.FCFA": "FCFA — CFA franc", "cur.FCFAs": "Cameroon, Central Africa", "cur.XOF": "XOF — CFA franc (UEMOA)", "cur.XOFs": "Senegal, Ivory Coast...", "cur.USD": "USD — US dollar", "cur.EUR": "EUR — Euro", "cur.GNF": "GNF — Guinean franc", "set.receipts": "🧾 Receipts & Invoices", "set.ticket": "58mm thermal ticket", "set.ticketS": "Cashier format", "set.invoice": "Professional A4 invoice", "set.invoiceS": "Business format", "set.thanks": "Thank-you message", "rcpt.thanks": "Thank you for your purchase!", "set.theme": "🎨 Theme", "th.light": "Light", "th.dark": "Dark", "th.violet": "Violet", "set.data": "💾 Data", "set.export": "Export data", "set.exportS": "JSON backup", "set.reset": "Reset", "set.resetS": "Erase all data", "rep.title": "Reports", "rep.sub": "Dashboard", "rep.z": "🧾 Z ticket (end of day)", "rep.bilan": "📊 Summary (week / month / year)", "rep.today": "💰 Sales today", "rep.txn": "Transactions", "rep.avg": "Avg. basket", "rep.margin": "Margin", "rep.stockVal": "📦 Stock value", "rep.prods": "Products", "rep.alerts": "Alerts", "rep.rupt": "Out of stock", "rep.top": "📋 Top sellers", "rep.noSale": "No sales", "rep.sold": "{n} sold", "rep.dluoTtl": "⏰ Best-before alerts", "rep.noDluo": "✅ No best-before alerts", "rep.expired": "EXPIRED", "lg.title": "🖼️ Shop logo", "lg.opt1": "Option 1 — Paste an image URL", "lg.use": "✅ Use this URL", "lg.or": "— or —", "lg.opt2": "Option 2 — Choose from your phone", "lg.pick": "Tap to choose a file", "ed.value": "Value", "btn.print": "🖨️ Print", "btn.printPdf": "🖨️ Print / PDF", "btn.close": "✕ Close", "z.ticket": "58mm ticket", "z.a4": "A4", "b.week": "Week", "b.month": "Month", "b.year": "Year", "z.titleA4": "Z TICKET - END OF DAY", "z.nb": "Number of sales", "z.ca": "Revenue", "z.margin": "Margin", "z.sold": "Products sold", "z.product": "Product", "z.qty": "Qty", "z.none": "No sales today", "z.t": "Z TICKET", "z.nbS": "Sales:", "z.caDay": "Daily revenue", "z.marginC": "Margin:", "z.soldCaps": "PRODUCTS SOLD", "bl.weekOf": "Week of {a} to {b}", "bl.year": "Year {y}", "bl.title": "SUMMARY - {l}", "bl.purchases": "Purchases (stock in)", "bl.stockToday": "Stock value (today)", "bl.gap": "Change vs. previous period", "bl.ca": "Revenue", "bl.top5": "Top 5 products", "bl.new": "▲ new", "au.sub": "Log in or create your account", "au.email": "Email", "au.pw": "Password", "au.pwPh": "6 characters minimum", "au.login": "Log in", "au.signup": "Create my account", "au.forgot": "Forgot password?", "rs.title": "New password", "rs.sub": "Choose a password you will remember", "rs.repeat": "Repeat it", "rs.same": "Same password", "rs.save": "Save password", "au.noNet": "No internet connection", "au.bad": "Incorrect email or password", "au.exists": "This email already has an account. Log in.", "au.confirm": "Please confirm your email first", "au.diff": "Choose a password different from the old one", "au.pw6": "Password: 6 characters minimum", "au.rate": "Too many attempts, try again in a few minutes", "au.err": "Error {s}", "au.fill": "Enter your email and password", "au.logging": "Signing in...", "au.creating": "Creating account...", "au.created": "Account created! Check your email to confirm, then log in.", "au.needEmail": "Enter your email in the box above first", "au.sending": "Sending...", "au.sent": "If this account exists, an email has just been sent. Check your inbox (and spam).", "au.expired": "Link expired. Use \"Forgot password?\" again.", "au.linkExp": "Link expired or already used. Use \"Forgot password?\" again.", "au.session": "Session expired, please log in again", "rs.differ": "The two passwords are different", "rs.saving": "Saving...", "t.pwChanged": "✅ Password changed", "es.left": "⏳ Free trial: {j} day left", "es.leftN": "⏳ Free trial: {j} days left", "bq.susp": "Access suspended", "bq.ended": "Trial ended", "bq.msgSusp": "Your account is suspended. Contact the administrator to reactivate it.", "bq.msgEnd": "Your 14-day free trial has ended. Contact the administrator to activate your account.", "bq.retry": "🔄 I've been activated: try again", "t.restored": "✅ Access restored", "t.stillSusp": "⚠️ Still suspended", "ad.title": "🛡️ Admin: customer accounts", "ad.refresh": "🔄 Refresh", "ad.loading": "Loading...", "ad.fail": "Unable to load the list (offline?)", "ad.count1": "{n} account", "ad.countN": "{n} accounts", "ad.active": "✅ Active", "ad.blocked": "⛔ Blocked", "ad.trial": "⏳ Trial: {j} d", "ad.trialEnd": "⌛ Trial ended", "ad.joined": "joined on", "ad.me": "(your account)", "ad.activate": "Activate", "ad.block": "Block", "ad.plus7": "+7 days", "ad.noEmail": "(no email)", "ad.none": "No accounts", "ad.self": "⚠️ You can't modify your own account here", "ad.confirmBlock": "Block this account?", "ad.refused": "⚠️ Error: change refused", "ad.nothing": "⚠️ Nothing was changed", "ad.updated": "✅ Account updated", "lo.confirm": "Log out?", "lo.legacy": "Data from your old version exists on this phone (shop name, logo...). Import it into this account?", "t.themeChanged": "Theme changed", "t.saved": "✅ {v} saved", "t.urlInvalid": "⚠️ Enter a valid URL", "t.logoSaved": "✅ Logo saved", "t.currency": "✅ Currency: {d}", "t.format": "✅ Format: {f}", "fmt.facture": "A4 invoice", "fmt.ticket": "58mm ticket", "t.exported": "✅ Data exported", "rs.confirm": "⚠️ Reset ALL data? This cannot be undone.", "t.resetDone": "✅ Reset done", "t.popup": "⚠️ Allow pop-ups to print", "t.printNA": "⚠️ Printing not available here"});
 Object.assign(I18N.fr,{"rcpt.print": "🖨️ Imprimer le reçu", "rcpt.invNo": "Facture:", "rcpt.date": "Date:", "rcpt.total": "TOTAL", "rcpt.pay": "Paiement:", "rcpt.invTitle": "FACTURE", "rcpt.no": "N°", "rcpt.desig": "Désignation", "rcpt.qty": "Qté", "rcpt.unit": "Prix unit. ({d})", "rcpt.amount": "Montant ({d})", "rcpt.sub": "Sous-total:", "rcpt.totalC": "TOTAL:", "rcpt.imgErr": "⚠️ Impossible de créer l'image du reçu", "rcpt.saved": "✅ Image enregistrée : ouvre-la avec ton application d'imprimante"});
 Object.assign(I18N.en,{"rcpt.print": "🖨️ Print receipt", "rcpt.invNo": "Invoice:", "rcpt.date": "Date:", "rcpt.total": "TOTAL", "rcpt.pay": "Payment:", "rcpt.invTitle": "INVOICE", "rcpt.no": "No.", "rcpt.desig": "Description", "rcpt.qty": "Qty", "rcpt.unit": "Unit price ({d})", "rcpt.amount": "Amount ({d})", "rcpt.sub": "Subtotal:", "rcpt.totalC": "TOTAL:", "rcpt.imgErr": "⚠️ Could not create the receipt image", "rcpt.saved": "✅ Image saved: open it with your printer app"});
+Object.assign(I18N.fr,{"rcpt.share": "📤 Partager en image", "prn.connecting": "Connexion à l'imprimante…", "prn.preparing": "Préparation du reçu…", "prn.sending": "Envoi du ticket… ne touche à rien", "prn.done": "✅ Ticket envoyé à l'imprimante", "prn.cancel": "Aucune imprimante choisie.", "prn.fail": "⚠️ Connexion impossible. Vérifie que l'imprimante est allumée et que Luck Jingle est fermé, puis réessaie.", "prn.lost": "⚠️ L'imprimante s'est déconnectée. Touche encore « Imprimer le reçu ».", "prn.noBt": "Bluetooth direct indisponible ici : j'ouvre le partage de l'image.", "prn.again": "Reconnexion impossible : touche encore une fois pour choisir l'imprimante."});
+Object.assign(I18N.en,{"rcpt.share": "📤 Share as image", "prn.connecting": "Connecting to the printer…", "prn.preparing": "Preparing the receipt…", "prn.sending": "Sending the ticket… do not touch anything", "prn.done": "✅ Ticket sent to the printer", "prn.cancel": "No printer chosen.", "prn.fail": "⚠️ Could not connect. Check that the printer is on and Luck Jingle is closed, then try again.", "prn.lost": "⚠️ The printer disconnected. Tap \"Print receipt\" again.", "prn.noBt": "Direct Bluetooth is not available here: opening the image share.", "prn.again": "Could not reconnect: tap once more to choose the printer."});
 function loc(){return LANG==='en'?'en-GB':'fr-FR';}
 function shopName(){const n=(DB&&DB.settings&&DB.settings.shopName)||'';return(!n||n==='Ma Boutique'||n==='My Shop')?t('shop.default'):n;}
 function t(k,a){
@@ -1385,6 +1389,7 @@ async function confirmSale(){
 let lastSale=null;
 function showRecu(nFact,items,total){
   lastSale={nFact,items,total,mode:payMode,date:new Date()};
+  const pm=document.getElementById('prn-msg');if(pm)pm.textContent='';
   buildRecu();openModal('m-recu');
 }
 function buildRecu(){
@@ -1453,7 +1458,7 @@ function wrapText(ctx,text,maxW){
   return out.length?out:[''];
 }
 function payPlain(m){return{cash:t('pay.cash'),momo:'Mobile Money',card:t('pay.card')}[m]||m;}
-async function receiptImageBlob(){
+async function receiptDraw(){
   var r=lastSale;if(!r)return null;
   var S=2,W=384,M=12,CW=W-2*M,F='Arial, Helvetica, sans-serif';
   var d=getDevise(),shop=shopName(),st=DB.settings;
@@ -1511,11 +1516,15 @@ async function receiptImageBlob(){
   ctx.scale(S,S);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
   ctx.fillStyle='#000';ctx.strokeStyle='#000';ctx.textBaseline='top';
   layout(ctx,true);
+  return {cv:cv,ctx:ctx,H:H};
+}
+async function receiptImageBlob(){
+  var d=await receiptDraw();if(!d)return null;
   // noir et blanc pur : une imprimante thermique n'imprime pas de gris
-  var im=ctx.getImageData(0,0,cv.width,cv.height),px=im.data;
+  var im=d.ctx.getImageData(0,0,d.cv.width,d.cv.height),px=im.data;
   for(var q=0;q<px.length;q+=4){var v=(0.299*px[q]+0.587*px[q+1]+0.114*px[q+2])<170?0:255;px[q]=px[q+1]=px[q+2]=v;px[q+3]=255;}
-  ctx.putImageData(im,0,0);
-  return await new Promise(function(res){cv.toBlob(function(b){res(b);},'image/png');});
+  d.ctx.putImageData(im,0,0);
+  return await new Promise(function(res){d.cv.toBlob(function(b){res(b);},'image/png');});
 }
 async function shareReceiptImage(){
   if(!lastSale)return;
@@ -1532,6 +1541,102 @@ async function shareReceiptImage(){
   document.body.appendChild(a);a.click();a.remove();
   setTimeout(function(){URL.revokeObjectURL(a.href);},4000);
   toast(t('rcpt.saved'));
+}
+
+// ══ IMPRESSION DIRECTE EN BLUETOOTH (imprimante Luck Jingle PPS1…) ══
+let PRN={dev:null,ch:null,busy:false};
+let PRN_CHUNK=100,PRN_DELAY=50;
+function prnSleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+function prnMsg(txt,kind){
+  var el=document.getElementById('prn-msg');if(!el)return;
+  el.textContent=txt||'';el.style.color=kind==='ok'?'#15803D':kind==='bad'?'#dc2626':'#555';
+}
+function prnBusy(on){
+  PRN.busy=on;
+  var b=document.getElementById('btn-recu-img');if(!b)return;
+  b.disabled=on;b.style.opacity=on?'.6':'1';
+}
+async function prnConnect(dev){
+  var lastErr=null;
+  for(var i=0;i<2;i++){
+    try{
+      var sv=await dev.gatt.connect();
+      var svc=await sv.getPrimaryService(0xff00);
+      return await svc.getCharacteristic(0xff02);
+    }catch(e){lastErr=e;try{dev.gatt.disconnect();}catch(x){}await prnSleep(600);}
+  }
+  throw lastErr;
+}
+async function prnGetChannel(){
+  if(PRN.ch&&PRN.dev&&PRN.dev.gatt.connected)return PRN.ch;
+  PRN.ch=null;
+  if(PRN.dev){                     // déjà choisie plus tôt : on se reconnecte sans fenêtre de choix
+    try{PRN.ch=await prnConnect(PRN.dev);return PRN.ch;}
+    catch(e){PRN.dev=null;var er=new Error('reconnect');er.name='ReconnectError';throw er;}
+  }
+  var dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'PPS1'}],optionalServices:[0xff00]});
+  dev.addEventListener('gattserverdisconnected',function(){PRN.ch=null;});
+  PRN.dev=dev;
+  PRN.ch=await prnConnect(dev);
+  return PRN.ch;
+}
+async function receiptRaster(){
+  var d=await receiptDraw();if(!d)return null;
+  var W=384,H=d.H,bpr=W/8;
+  var out=document.createElement('canvas');out.width=W;out.height=H;
+  var c=out.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,W,H);
+  c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(d.cv,0,0,W,H);
+  var px=c.getImageData(0,0,W,H).data,data=new Uint8Array(bpr*H);
+  for(var y=0;y<H;y++)for(var x=0;x<W;x++){
+    var k=(y*W+x)*4,lum=0.299*px[k]+0.587*px[k+1]+0.114*px[k+2];
+    if(lum<165)data[y*bpr+(x>>3)]|=(0x80>>(x&7));
+  }
+  return {head:new Uint8Array([0x1d,0x76,0x30,0x00,bpr&255,bpr>>8,H&255,H>>8]),data:data,rows:H};
+}
+async function prnSend(ch,rs){
+  async function w(bytes,pause,prog){
+    for(var i=0;i<bytes.length;i+=PRN_CHUNK){
+      var part=bytes.slice(i,i+PRN_CHUNK);
+      if(ch.writeValueWithoutResponse)await ch.writeValueWithoutResponse(part);else await ch.writeValue(part);
+      if(prog)prnMsg(t('prn.sending')+' '+Math.min(100,Math.round((i+part.length)*100/bytes.length))+' %');
+      await prnSleep(PRN_DELAY);
+    }
+    if(pause)await prnSleep(pause);
+  }
+  var img=new Uint8Array(rs.head.length+rs.data.length);img.set(rs.head,0);img.set(rs.data,rs.head.length);
+  await w(new Uint8Array([0x10,0xFF,0xF1,0x03]),80);          // activer l'imprimante
+  await w(new Uint8Array(12),80);                              // réveil
+  await w(new Uint8Array([0x10,0xFF,0x10,0x00,0x01]),80);      // densité normale
+  await w(img,150,true);                                       // l'image du reçu
+  await w(new Uint8Array([0x1B,0x4A,0x50]),80);                // faire avancer le papier
+  await w(new Uint8Array([0x10,0xFF,0xF1,0x45]),0);            // fin du travail
+}
+async function printReceiptDirect(){
+  if(!lastSale||PRN.busy)return;
+  if(!navigator.bluetooth){prnMsg(t('prn.noBt'));shareReceiptImage();return;}
+  prnBusy(true);
+  var phase='connect';
+  try{
+    prnMsg(t('prn.connecting'));
+    var ch=await prnGetChannel();                              // 1re étape : peut ouvrir la fenêtre de choix de Chrome
+    phase='draw';
+    prnMsg(t('prn.preparing'));
+    var rs=await receiptRaster();
+    if(!rs)throw new Error('no receipt');
+    phase='send';
+    prnMsg(t('prn.sending'));
+    await prnSend(ch,rs);
+    prnMsg(t('prn.done'),'ok');toast(t('prn.done'));
+  }catch(e){
+    var n=e&&e.name;
+    if(phase==='connect'){
+      if(n==='NotFoundError')prnMsg(t('prn.cancel'),'bad');
+      else if(n==='ReconnectError')prnMsg(t('prn.again'),'bad');
+      else{PRN.ch=null;prnMsg(t('prn.fail'),'bad');console.error(e);}
+    }else if(phase==='send'){
+      PRN.ch=null;prnMsg(t('prn.lost'),'bad');console.error(e);
+    }else{prnMsg(t('rcpt.imgErr'),'bad');console.error(e);}
+  }finally{prnBusy(false);}
 }
 
 function buildWAMsg(){

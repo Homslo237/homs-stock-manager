@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Test imprimante Bluetooth</title>
+<title>Test imprimante Bluetooth v2</title>
 <style>
 :root{--bg:#f0f4f8;--card:#fff;--text:#1a1a2e;--text2:#64748b;--accent:#0d4a8a;--ok:#15803d;--bad:#dc2626;--border:rgba(0,0,0,.14)}
 @media (prefers-color-scheme:dark){:root{--bg:#0b0b14;--card:#1c1c2e;--text:#f0f0f8;--text2:#9a9ab8;--accent:#378ADD;--ok:#4ade80;--bad:#f87171;--border:rgba(255,255,255,.18)}}
@@ -22,10 +22,12 @@ select{width:100%;min-height:46px;border-radius:12px;border:1.5px solid var(--bo
 #status.ok{color:var(--ok)}#status.bad{color:var(--bad)}
 #log{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow:auto;background:var(--bg);border-radius:10px;padding:10px;color:var(--text)}
 .small{font-size:12px;color:var(--text2);margin-top:8px;line-height:1.5}
+input{width:100%;min-height:46px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:16px;padding:0 10px;margin-top:6px;font-family:ui-monospace,Menlo,Consolas,monospace;text-transform:uppercase}
+label.small{display:block}
 </style>
 </head>
 <body>
-<h1>🖨️ Test imprimante Bluetooth</h1>
+<h1>🖨️ Test imprimante Bluetooth <span style="font-size:13px;color:var(--text2)">v2</span></h1>
 <div class="sub">Page de test, séparée de l'appli. Elle ne change rien à tes données.</div>
 
 <div class="card">
@@ -44,6 +46,18 @@ select{width:100%;min-height:46px;border-radius:12px;border:1.5px solid var(--bo
   <button id="btn-img" class="sec" disabled>Essai B : imprimer une image</button>
   <div class="small">Si l'essai A ne donne rien ou des signes bizarres, essaie l'essai B. Dis-moi lequel a marché.</div>
   <button id="btn-off" class="sec" disabled>Déconnecter</button>
+</div>
+
+<div class="card">
+  <div class="step">Étape 3 · Tests avancés (un seul à la fois)</div>
+  <div class="small" style="margin-top:0">Touche UN bouton, regarde l'imprimante, puis note : le papier rentre, sort, ne bouge pas, ou bruit ?</div>
+  <button class="sec pre" disabled data-hex="1B 40">Seulement « réveil » (1B 40)</button>
+  <button class="sec pre" disabled data-hex="1B 64 03">Seulement « avancer » (1B 64 03)</button>
+  <button class="sec pre" disabled data-hex="1B 4A 30">« Avancer 48 points » (1B 4A 30)</button>
+  <button class="sec pre" disabled data-hex="10 04 01">Question d'état (10 04 01)</button>
+  <label class="small" for="hex">Ou tes propres octets (en hexadécimal) :</label>
+  <input id="hex" placeholder="ex : 1B 40" autocomplete="off" disabled>
+  <button id="btn-hex" disabled>Envoyer ces octets</button>
 </div>
 
 <div class="card">
@@ -67,6 +81,7 @@ function log(m){var d=new Date();var t=('0'+d.getHours()).slice(-2)+':'+('0'+d.g
 function status(m,cls){var s=$('status');s.textContent=m;s.className=cls||'';}
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms)});}
 function hex(n){return ('0'+n.toString(16)).slice(-2);}
+function toHex(a){var o=[];for(var i=0;i<a.length&&i<64;i++)o.push(hex(a[i]).toUpperCase());return o.join(' ')+(a.length>64?' …('+a.length+' octets)':'');}
 function propsOf(c){var p=c.properties,a=[];if(p.write)a.push('write');if(p.writeWithoutResponse)a.push('writeSansReponse');if(p.notify)a.push('notify');if(p.read)a.push('read');return a.join('+')||'-';}
 function short(u){u=String(u);var m=u.match(/^0000([0-9a-f]{4})-0000-1000-8000-00805f9b34fb$/i);return m?('0x'+m[1]):u;}
 
@@ -95,6 +110,17 @@ async function connect(all){
       for(var j=0;j<cs.length;j++){
         var p=propsOf(cs[j]);
         log('  '+short(svcs[i].uuid)+' / '+short(cs[j].uuid)+'  ['+p+']');
+        if(cs[j].properties.notify||cs[j].properties.indicate){
+          (function(c,lab){
+            Promise.resolve().then(function(){return c.startNotifications();}).then(function(){
+              c.addEventListener('characteristicvaluechanged',function(ev){
+                var v=new Uint8Array(ev.target.value.buffer,ev.target.value.byteOffset,ev.target.value.byteLength);
+                log('← réponse '+lab+' : '+toHex(v));
+              });
+              log('  (j\'écoute les réponses sur '+lab+')');
+            }).catch(function(e){log('  (écoute impossible sur '+lab+' : '+e.message+')');});
+          })(cs[j],short(cs[j].uuid));
+        }
         if(cs[j].properties.write||cs[j].properties.writeWithoutResponse){
           chars.push({svc:svcs[i],ch:cs[j],label:short(svcs[i].uuid)+' / '+short(cs[j].uuid)+' ('+p+')',nr:!!cs[j].properties.writeWithoutResponse});
         }
@@ -119,12 +145,12 @@ async function connect(all){
     else{status('Erreur : '+(e&&e.message?e.message:e),'bad');log('ERREUR '+(e&&e.name)+' : '+(e&&e.message));}
   }
 }
-function setReady(on){['btn-text','btn-img','btn-off'].forEach(function(id){$(id).disabled=!on;});$('sel-char').disabled=!on;}
+function setReady(on){['btn-text','btn-img','btn-off','btn-hex'].forEach(function(id){$(id).disabled=!on;});$('sel-char').disabled=!on;$('hex').disabled=!on;document.querySelectorAll('.pre').forEach(function(b){b.disabled=!on;});}
 
 async function send(bytes){
   var c=chars[Number($('sel-char').value)||0];
   if(!c||!server||!server.connected){throw new Error('Pas connecté');}
-  log('Envoi de '+bytes.length+' octets…');
+  log('→ '+bytes.length+' octets, début : '+toHex(bytes.slice(0,8)));
   for(var i=0;i<bytes.length;i+=CHUNK){
     var part=bytes.slice(i,i+CHUNK);
     if(c.ch.properties.writeWithoutResponse&&c.ch.writeValueWithoutResponse)await c.ch.writeValueWithoutResponse(part);
@@ -155,6 +181,18 @@ async function printImage(){
     status('Envoi de l\'image…');await send(data);status('Envoyé. Regarde l\'imprimante.','ok');
   }catch(e){status('Erreur : '+e.message,'bad');log('ERREUR '+e.name+' : '+e.message);}
 }
+function parseHex(str){
+  var t=String(str||'').replace(/0x/gi,'').replace(/[\s,;:-]+/g,'');
+  if(!t)throw new Error('Écris au moins un octet, par exemple 1B 40');
+  if(!/^[0-9a-fA-F]+$/.test(t))throw new Error('Seuls les chiffres 0-9 et les lettres A-F sont permis');
+  if(t.length%2)throw new Error('Il faut un nombre pair de caractères (2 par octet)');
+  if(t.length>512)throw new Error('Trop long (256 octets maximum)');
+  var out=new Uint8Array(t.length/2);for(var i=0;i<out.length;i++)out[i]=parseInt(t.substr(i*2,2),16);return out;
+}
+async function sendHex(str){
+  try{var b=parseHex(str);log('→ envoi : '+toHex(b));status('Envoi…');await send(b);status('Envoyé. Regarde l\'imprimante.','ok');}
+  catch(e){status('Erreur : '+e.message,'bad');log('ERREUR '+(e.name||'')+' : '+e.message);}
+}
 function off(){try{if(device&&device.gatt.connected)device.gatt.disconnect();}catch(e){}}
 
 $('btn-find').onclick=function(){connect(false);};
@@ -162,6 +200,8 @@ $('btn-all').onclick=function(){connect(true);};
 $('btn-text').onclick=printText;
 $('btn-img').onclick=printImage;
 $('btn-off').onclick=off;
+$('btn-hex').onclick=function(){sendHex($('hex').value);};
+document.querySelectorAll('.pre').forEach(function(b){b.onclick=function(){sendHex(b.getAttribute('data-hex'));};});
 $('btn-copy').onclick=function(){var t=$('log').textContent;try{navigator.clipboard.writeText(t).then(function(){status('Journal copié.','ok');});}catch(e){status('Copie impossible : fais une capture.','bad');}};
 window.__bt={printText:printText,printImage:printImage};
 })();

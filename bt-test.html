@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Test imprimante Bluetooth v2</title>
+<title>Test imprimante Bluetooth v3</title>
 <style>
 :root{--bg:#f0f4f8;--card:#fff;--text:#1a1a2e;--text2:#64748b;--accent:#0d4a8a;--ok:#15803d;--bad:#dc2626;--border:rgba(0,0,0,.14)}
 @media (prefers-color-scheme:dark){:root{--bg:#0b0b14;--card:#1c1c2e;--text:#f0f0f8;--text2:#9a9ab8;--accent:#378ADD;--ok:#4ade80;--bad:#f87171;--border:rgba(255,255,255,.18)}}
@@ -27,7 +27,7 @@ label.small{display:block}
 </style>
 </head>
 <body>
-<h1>🖨️ Test imprimante Bluetooth <span style="font-size:13px;color:var(--text2)">v2</span></h1>
+<h1>🖨️ Test imprimante Bluetooth <span style="font-size:13px;color:var(--text2)">v3</span></h1>
 <div class="sub">Page de test, séparée de l'appli. Elle ne change rien à tes données.</div>
 
 <div class="card">
@@ -42,9 +42,12 @@ label.small{display:block}
   <div class="step">Étape 2 · Imprimer un essai</div>
   <label class="small" for="sel-char" style="display:block;margin-top:0">Canal d'envoi (choisi automatiquement) :</label>
   <select id="sel-char" disabled><option>— aucune imprimante connectée —</option></select>
-  <button id="btn-text" disabled>Essai A : imprimer du texte</button>
-  <button id="btn-img" class="sec" disabled>Essai B : imprimer une image</button>
-  <div class="small">Si l'essai A ne donne rien ou des signes bizarres, essaie l'essai B. Dis-moi lequel a marché.</div>
+  <button id="btn-luck" disabled>Essai C : impression complète (nouvelle méthode)</button>
+  <button id="btn-text" class="sec" disabled>Essai A : imprimer du texte (ancien)</button>
+  <button id="btn-img" class="sec" disabled>Essai B : imprimer une image (ancien)</button>
+  <div class="small">Commence par l'<b>essai C</b> : c'est la méthode décrite par d'autres utilisateurs de ces imprimantes.</div>
+  <label class="small" for="chunk">Taille des paquets (octets) et pause (ms) :</label>
+  <div style="display:flex;gap:8px"><input id="chunk" value="100" inputmode="numeric" style="text-transform:none"><input id="delay" value="50" inputmode="numeric" style="text-transform:none"></div>
   <button id="btn-off" class="sec" disabled>Déconnecter</button>
 </div>
 
@@ -54,7 +57,9 @@ label.small{display:block}
   <button class="sec pre" disabled data-hex="1B 40">Seulement « réveil » (1B 40)</button>
   <button class="sec pre" disabled data-hex="1B 64 03">Seulement « avancer » (1B 64 03)</button>
   <button class="sec pre" disabled data-hex="1B 4A 30">« Avancer 48 points » (1B 4A 30)</button>
-  <button class="sec pre" disabled data-hex="10 04 01">Question d'état (10 04 01)</button>
+  <button class="sec pre" disabled data-hex="10 FF 20 F0">Demander le modèle (10 FF 20 F0)</button>
+  <button class="sec pre" disabled data-hex="10 FF 50 F1">Demander la batterie (10 FF 50 F1)</button>
+  <button class="sec pre" disabled data-hex="10 FF 40">Demander l'état (10 FF 40)</button>
   <label class="small" for="hex">Ou tes propres octets (en hexadécimal) :</label>
   <input id="hex" placeholder="ex : 1B 40" autocomplete="off" disabled>
   <button id="btn-hex" disabled>Envoyer ces octets</button>
@@ -72,7 +77,7 @@ label.small{display:block}
 // Services connus des petites imprimantes BLE (liste d'essai : le navigateur n'ouvre QUE ceux qu'on cite ici)
 var SERVICES=[0x18f0,0xfee7,0xff00,0xff10,0xff12,0xffe0,0xffe5,0xfff0,0xffb0,0xae00,0xae30,
   '49535343-fe7d-4ae5-8fa9-9fafd205e455','e7810a71-73ae-499d-8c15-faa9aef0c3f2','bef8d6c9-9c21-4c9e-b632-bd58c1009f9f'];
-var CHUNK=20, DELAY=12;
+var CHUNK=100, DELAY=50;
 var $=function(id){return document.getElementById(id)};
 var device=null, server=null, chars=[]; // chars = [{svc,ch,label,props}]
 
@@ -81,6 +86,7 @@ function log(m){var d=new Date();var t=('0'+d.getHours()).slice(-2)+':'+('0'+d.g
 function status(m,cls){var s=$('status');s.textContent=m;s.className=cls||'';}
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms)});}
 function hex(n){return ('0'+n.toString(16)).slice(-2);}
+function toAscii(a){var o='';for(var i=0;i<a.length&&i<64;i++)o+=(a[i]>=32&&a[i]<127)?String.fromCharCode(a[i]):'.';return o;}
 function toHex(a){var o=[];for(var i=0;i<a.length&&i<64;i++)o.push(hex(a[i]).toUpperCase());return o.join(' ')+(a.length>64?' …('+a.length+' octets)':'');}
 function propsOf(c){var p=c.properties,a=[];if(p.write)a.push('write');if(p.writeWithoutResponse)a.push('writeSansReponse');if(p.notify)a.push('notify');if(p.read)a.push('read');return a.join('+')||'-';}
 function short(u){u=String(u);var m=u.match(/^0000([0-9a-f]{4})-0000-1000-8000-00805f9b34fb$/i);return m?('0x'+m[1]):u;}
@@ -115,7 +121,7 @@ async function connect(all){
             Promise.resolve().then(function(){return c.startNotifications();}).then(function(){
               c.addEventListener('characteristicvaluechanged',function(ev){
                 var v=new Uint8Array(ev.target.value.buffer,ev.target.value.byteOffset,ev.target.value.byteLength);
-                log('← réponse '+lab+' : '+toHex(v));
+                log('← réponse '+lab+' : '+toHex(v)+'   « '+toAscii(v)+' »');
               });
               log('  (j\'écoute les réponses sur '+lab+')');
             }).catch(function(e){log('  (écoute impossible sur '+lab+' : '+e.message+')');});
@@ -145,17 +151,18 @@ async function connect(all){
     else{status('Erreur : '+(e&&e.message?e.message:e),'bad');log('ERREUR '+(e&&e.name)+' : '+(e&&e.message));}
   }
 }
-function setReady(on){['btn-text','btn-img','btn-off','btn-hex'].forEach(function(id){$(id).disabled=!on;});$('sel-char').disabled=!on;$('hex').disabled=!on;document.querySelectorAll('.pre').forEach(function(b){b.disabled=!on;});}
+function setReady(on){['btn-luck','btn-text','btn-img','btn-off','btn-hex'].forEach(function(id){$(id).disabled=!on;});$('sel-char').disabled=!on;$('hex').disabled=!on;document.querySelectorAll('.pre').forEach(function(b){b.disabled=!on;});}
 
 async function send(bytes){
   var c=chars[Number($('sel-char').value)||0];
   if(!c||!server||!server.connected){throw new Error('Pas connecté');}
   log('→ '+bytes.length+' octets, début : '+toHex(bytes.slice(0,8)));
-  for(var i=0;i<bytes.length;i+=CHUNK){
-    var part=bytes.slice(i,i+CHUNK);
+  var CH=Math.max(1,Math.min(512,parseInt($('chunk').value,10)||CHUNK)),DL=Math.max(0,parseInt($('delay').value,10)||0);
+  for(var i=0;i<bytes.length;i+=CH){
+    var part=bytes.slice(i,i+CH);
     if(c.ch.properties.writeWithoutResponse&&c.ch.writeValueWithoutResponse)await c.ch.writeValueWithoutResponse(part);
     else await c.ch.writeValue(part);
-    await sleep(DELAY);
+    await sleep(DL);
   }
   log('Envoi terminé.');
 }
@@ -166,6 +173,30 @@ async function printText(){
     var enc=new TextEncoder();
     var data=cat(new Uint8Array([0x1b,0x40]),enc.encode('TEST HOMS-STOCK\n--------------------\nCastel 65cl  x2   1400 FCFA\nTOTAL            1400 FCFA\n--------------------\nMerci !\n'),new Uint8Array([0x1b,0x64,0x03]));
     status('Envoi du texte…');await send(data);status('Envoyé. Regarde l\'imprimante.','ok');
+  }catch(e){status('Erreur : '+e.message,'bad');log('ERREUR '+e.name+' : '+e.message);}
+}
+function testRaster(){
+  var W=384,H=160,cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  var g=cv.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,H);g.fillStyle='#000';g.strokeStyle='#000';g.lineWidth=3;
+  g.strokeRect(2,2,W-4,H-4);
+  g.font='bold 34px monospace';g.fillText('TEST HOMS-STOCK',12,50);
+  g.font='bold 26px monospace';g.fillText('Castel 65cl x2',12,92);g.fillText('TOTAL 1400 FCFA',12,132);
+  var px=g.getImageData(0,0,W,H).data,bpr=W/8,raster=new Uint8Array(bpr*H);
+  for(var y=0;y<H;y++)for(var x=0;x<W;x++){var k=(y*W+x)*4,lum=0.299*px[k]+0.587*px[k+1]+0.114*px[k+2];if(lum<128)raster[y*bpr+(x>>3)]|=(0x80>>(x&7));}
+  return {head:new Uint8Array([0x1d,0x76,0x30,0x00,bpr&255,bpr>>8,H&255,H>>8]),raster:raster};
+}
+async function printLuck(){
+  try{
+    var r=testRaster();
+    status('Envoi en cours… ne touche à rien.');
+    log('Séquence : 1) activer  2) réveil  3) densité  4) image  5) avancer  6) fin');
+    await send(new Uint8Array([0x10,0xFF,0xF1,0x03]));await sleep(80);
+    await send(new Uint8Array(12));await sleep(80);
+    await send(new Uint8Array([0x10,0xFF,0x10,0x00,0x01]));await sleep(80);
+    await send(cat(r.head,r.raster));await sleep(150);
+    await send(new Uint8Array([0x1B,0x4A,0x50]));await sleep(80);
+    await send(new Uint8Array([0x10,0xFF,0xF1,0x45]));
+    status('Envoyé. Regarde l\'imprimante (et le journal : « ← réponse »).','ok');
   }catch(e){status('Erreur : '+e.message,'bad');log('ERREUR '+e.name+' : '+e.message);}
 }
 async function printImage(){
@@ -198,6 +229,7 @@ function off(){try{if(device&&device.gatt.connected)device.gatt.disconnect();}ca
 $('btn-find').onclick=function(){connect(false);};
 $('btn-all').onclick=function(){connect(true);};
 $('btn-text').onclick=printText;
+$('btn-luck').onclick=printLuck;
 $('btn-img').onclick=printImage;
 $('btn-off').onclick=off;
 $('btn-hex').onclick=function(){sendHex($('hex').value);};

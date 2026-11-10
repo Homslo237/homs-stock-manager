@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Test imprimante Bluetooth</title>
+<style>
+:root{--bg:#f0f4f8;--card:#fff;--text:#1a1a2e;--text2:#64748b;--accent:#0d4a8a;--ok:#15803d;--bad:#dc2626;--border:rgba(0,0,0,.14)}
+@media (prefers-color-scheme:dark){:root{--bg:#0b0b14;--card:#1c1c2e;--text:#f0f0f8;--text2:#9a9ab8;--accent:#378ADD;--ok:#4ade80;--bad:#f87171;--border:rgba(255,255,255,.18)}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:430px;margin:0 auto;padding:16px 16px 40px}
+h1{font-size:20px;margin:6px 0 4px}
+.sub{font-size:13px;color:var(--text2);margin-bottom:14px}
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px}
+.step{font-size:12px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+button{width:100%;min-height:50px;border-radius:14px;border:0;background:var(--accent);color:#fff;font-size:16px;font-weight:700;font-family:inherit;margin-top:8px;cursor:pointer}
+button.sec{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+button:disabled{opacity:.45;cursor:not-allowed}
+select{width:100%;min-height:46px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:14px;padding:0 10px;margin-top:8px}
+#status{font-size:15px;font-weight:700;margin-top:10px;min-height:22px}
+#status.ok{color:var(--ok)}#status.bad{color:var(--bad)}
+#log{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow:auto;background:var(--bg);border-radius:10px;padding:10px;color:var(--text)}
+.small{font-size:12px;color:var(--text2);margin-top:8px;line-height:1.5}
+</style>
+</head>
+<body>
+<h1>🖨️ Test imprimante Bluetooth</h1>
+<div class="sub">Page de test, séparée de l'appli. Elle ne change rien à tes données.</div>
+
+<div class="card">
+  <div class="step">Étape 1 · Trouver l'imprimante</div>
+  <div class="small" style="margin-top:0">Allume l'imprimante (appui 3 secondes). Ne l'associe pas dans les réglages Android.</div>
+  <button id="btn-find">Chercher l'imprimante (PPS1…)</button>
+  <button id="btn-all" class="sec">Voir tous les appareils Bluetooth</button>
+  <div id="status"></div>
+</div>
+
+<div class="card">
+  <div class="step">Étape 2 · Imprimer un essai</div>
+  <label class="small" for="sel-char" style="display:block;margin-top:0">Canal d'envoi (choisi automatiquement) :</label>
+  <select id="sel-char" disabled><option>— aucune imprimante connectée —</option></select>
+  <button id="btn-text" disabled>Essai A : imprimer du texte</button>
+  <button id="btn-img" class="sec" disabled>Essai B : imprimer une image</button>
+  <div class="small">Si l'essai A ne donne rien ou des signes bizarres, essaie l'essai B. Dis-moi lequel a marché.</div>
+  <button id="btn-off" class="sec" disabled>Déconnecter</button>
+</div>
+
+<div class="card">
+  <div class="step">Journal (fais une capture d'écran)</div>
+  <div id="log">Prêt.</div>
+  <button id="btn-copy" class="sec">Copier le journal</button>
+</div>
+
+<script>
+(function(){
+'use strict';
+// Services connus des petites imprimantes BLE (liste d'essai : le navigateur n'ouvre QUE ceux qu'on cite ici)
+var SERVICES=[0x18f0,0xfee7,0xff00,0xff10,0xff12,0xffe0,0xffe5,0xfff0,0xffb0,0xae00,0xae30,
+  '49535343-fe7d-4ae5-8fa9-9fafd205e455','e7810a71-73ae-499d-8c15-faa9aef0c3f2','bef8d6c9-9c21-4c9e-b632-bd58c1009f9f'];
+var CHUNK=20, DELAY=12;
+var $=function(id){return document.getElementById(id)};
+var device=null, server=null, chars=[]; // chars = [{svc,ch,label,props}]
+
+function log(m){var d=new Date();var t=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2);
+  var el=$('log');el.textContent+= '\n'+t+'  '+m;el.scrollTop=el.scrollHeight;}
+function status(m,cls){var s=$('status');s.textContent=m;s.className=cls||'';}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms)});}
+function hex(n){return ('0'+n.toString(16)).slice(-2);}
+function propsOf(c){var p=c.properties,a=[];if(p.write)a.push('write');if(p.writeWithoutResponse)a.push('writeSansReponse');if(p.notify)a.push('notify');if(p.read)a.push('read');return a.join('+')||'-';}
+function short(u){u=String(u);var m=u.match(/^0000([0-9a-f]{4})-0000-1000-8000-00805f9b34fb$/i);return m?('0x'+m[1]):u;}
+
+if(!navigator.bluetooth){
+  status('⚠️ Bluetooth web indisponible ici. Ouvre cette page dans Chrome sur Android.','bad');
+  log('navigator.bluetooth est absent. Navigateur utilisé : '+navigator.userAgent);
+  $('btn-find').disabled=true;$('btn-all').disabled=true;
+}
+
+async function connect(all){
+  try{
+    status('Recherche… choisis ton imprimante dans la liste.');
+    var opts=all?{acceptAllDevices:true,optionalServices:SERVICES}:{filters:[{namePrefix:'PPS1'}],optionalServices:SERVICES};
+    log('Recherche ('+(all?'tous les appareils':'noms PPS1…')+')');
+    device=await navigator.bluetooth.requestDevice(opts);
+    log('Appareil choisi : '+(device.name||'(sans nom)'));
+    device.addEventListener('gattserverdisconnected',function(){log('Déconnecté.');status('Déconnecté.','bad');setReady(false);});
+    status('Connexion en cours…');
+    server=await device.gatt.connect();
+    log('Connecté au Bluetooth de l\'imprimante.');
+    var svcs=await server.getPrimaryServices();
+    log('Services accessibles : '+svcs.length);
+    chars=[];
+    for(var i=0;i<svcs.length;i++){
+      var cs=[];try{cs=await svcs[i].getCharacteristics();}catch(e){log('  (lecture refusée pour '+short(svcs[i].uuid)+' : '+e.message+')');}
+      for(var j=0;j<cs.length;j++){
+        var p=propsOf(cs[j]);
+        log('  '+short(svcs[i].uuid)+' / '+short(cs[j].uuid)+'  ['+p+']');
+        if(cs[j].properties.write||cs[j].properties.writeWithoutResponse){
+          chars.push({svc:svcs[i],ch:cs[j],label:short(svcs[i].uuid)+' / '+short(cs[j].uuid)+' ('+p+')',nr:!!cs[j].properties.writeWithoutResponse});
+        }
+      }
+    }
+    if(!svcs.length){
+      status('Connecté, mais aucun service connu. Je dois voir les vrais identifiants.','bad');
+      log('RÉSULTAT : aucun des services de ma liste n\'existe sur cette imprimante.');
+      log('Piste : lire les identifiants avec l\'application gratuite « nRF Connect ».');
+      return;
+    }
+    if(!chars.length){status('Connecté, mais aucun canal d\'écriture trouvé.','bad');log('RÉSULTAT : aucun canal "write".');return;}
+    // préférence : un canal « écriture sans réponse », sinon le premier
+    chars.sort(function(a,b){return (b.nr?1:0)-(a.nr?1:0);});
+    var sel=$('sel-char');sel.innerHTML='';
+    chars.forEach(function(c,k){var o=document.createElement('option');o.value=k;o.textContent=c.label;sel.appendChild(o);});
+    setReady(true);
+    status('✅ Connecté à '+(device.name||'l\'imprimante')+'. Passe à l\'étape 2.','ok');
+    log('Canal proposé : '+chars[0].label);
+  }catch(e){
+    if(e&&e.name==='NotFoundError'){status('Aucun appareil choisi.','bad');log('Annulé ou imprimante introuvable : '+e.message);}
+    else{status('Erreur : '+(e&&e.message?e.message:e),'bad');log('ERREUR '+(e&&e.name)+' : '+(e&&e.message));}
+  }
+}
+function setReady(on){['btn-text','btn-img','btn-off'].forEach(function(id){$(id).disabled=!on;});$('sel-char').disabled=!on;}
+
+async function send(bytes){
+  var c=chars[Number($('sel-char').value)||0];
+  if(!c||!server||!server.connected){throw new Error('Pas connecté');}
+  log('Envoi de '+bytes.length+' octets…');
+  for(var i=0;i<bytes.length;i+=CHUNK){
+    var part=bytes.slice(i,i+CHUNK);
+    if(c.ch.properties.writeWithoutResponse&&c.ch.writeValueWithoutResponse)await c.ch.writeValueWithoutResponse(part);
+    else await c.ch.writeValue(part);
+    await sleep(DELAY);
+  }
+  log('Envoi terminé.');
+}
+function cat(){var n=0,i;for(i=0;i<arguments.length;i++)n+=arguments[i].length;var o=new Uint8Array(n),p=0;for(i=0;i<arguments.length;i++){o.set(arguments[i],p);p+=arguments[i].length;}return o;}
+
+async function printText(){
+  try{
+    var enc=new TextEncoder();
+    var data=cat(new Uint8Array([0x1b,0x40]),enc.encode('TEST HOMS-STOCK\n--------------------\nCastel 65cl  x2   1400 FCFA\nTOTAL            1400 FCFA\n--------------------\nMerci !\n'),new Uint8Array([0x1b,0x64,0x03]));
+    status('Envoi du texte…');await send(data);status('Envoyé. Regarde l\'imprimante.','ok');
+  }catch(e){status('Erreur : '+e.message,'bad');log('ERREUR '+e.name+' : '+e.message);}
+}
+async function printImage(){
+  try{
+    var W=384,H=140,cv=document.createElement('canvas');cv.width=W;cv.height=H;
+    var g=cv.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,H);g.fillStyle='#000';
+    g.font='bold 34px monospace';g.fillText('TEST HOMS-STOCK',8,44);
+    g.font='bold 26px monospace';g.fillText('Castel 65cl x2',8,84);g.fillText('TOTAL 1400 FCFA',8,120);
+    var px=g.getImageData(0,0,W,H).data,bpr=W/8,raster=new Uint8Array(bpr*H);
+    for(var y=0;y<H;y++)for(var x=0;x<W;x++){var k=(y*W+x)*4,lum=0.299*px[k]+0.587*px[k+1]+0.114*px[k+2];if(lum<128)raster[y*bpr+(x>>3)]|=(0x80>>(x&7));}
+    var head=new Uint8Array([0x1b,0x40,0x1d,0x76,0x30,0x00,bpr&255,bpr>>8,H&255,H>>8]);
+    var data=cat(head,raster,new Uint8Array([0x1b,0x64,0x03]));
+    status('Envoi de l\'image…');await send(data);status('Envoyé. Regarde l\'imprimante.','ok');
+  }catch(e){status('Erreur : '+e.message,'bad');log('ERREUR '+e.name+' : '+e.message);}
+}
+function off(){try{if(device&&device.gatt.connected)device.gatt.disconnect();}catch(e){}}
+
+$('btn-find').onclick=function(){connect(false);};
+$('btn-all').onclick=function(){connect(true);};
+$('btn-text').onclick=printText;
+$('btn-img').onclick=printImage;
+$('btn-off').onclick=off;
+$('btn-copy').onclick=function(){var t=$('log').textContent;try{navigator.clipboard.writeText(t).then(function(){status('Journal copié.','ok');});}catch(e){status('Copie impossible : fais une capture.','bad');}};
+window.__bt={printText:printText,printImage:printImage};
+})();
+</script>
+</body>
+</html>

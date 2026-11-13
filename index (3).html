@@ -1,0 +1,2402 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f3460">
+<title>HOMS-STOCK MANAGER</title>
+<style>
+/* ══ THÈME CLAIR (défaut) ══ */
+:root{
+  --bg:#f0f4f8;--surface:#ffffff;--card:#ffffff;--card2:#f0f4f8;
+  --accent:#185FA5;--accent2:#0d4a8a;
+  --green:#16a34a;--green-bg:#dcfce7;
+  --amber:#d97706;--amber-bg:#fef3c7;
+  --red:#dc2626;--red-bg:#fee2e2;
+  --text:#1a1a2e;--text2:#64748b;--text3:#94a3b8;
+  --border:rgba(0,0,0,0.10);--border2:rgba(0,0,0,0.18);
+  --hero1:#1a1a2e;--hero2:#16213e;--hero3:#0f3460;
+  --shadow:0 2px 12px rgba(0,0,0,0.08);
+  --hero-bg:#0F1B33;--hero-mut:#A9B8D6;--lime:#C8F169;--bar:#0F1B33;
+}
+[data-theme="dark"]{
+  --bg:#0b0b14;--surface:#13131f;--card:#1c1c2e;--card2:#242438;
+  --accent:#378ADD;--accent2:#185FA5;
+  --green:#4ade80;--green-bg:#052e16;
+  --amber:#fbbf24;--amber-bg:#2d1a00;
+  --red:#f87171;--red-bg:#2d0a0a;
+  --text:#f0f0f8;--text2:#8888aa;--text3:#555580;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.16);
+  --hero1:#0b0b14;--hero2:#13131f;--hero3:#0f3460;
+  --shadow:0 2px 12px rgba(0,0,0,0.3);
+  --hero-bg:#17254a;--hero-mut:#A9B8D6;--lime:#C8F169;--bar:#17254a;
+}
+[data-theme="violet"]{
+  --bg:#120820;--surface:#1a0f2e;--card:#231540;--card2:#2d1a50;
+  --accent:#c084fc;--accent2:#9333ea;
+  --green:#86efac;--green-bg:#14532d;
+  --amber:#fcd34d;--amber-bg:#3b1a00;
+  --red:#fca5a5;--red-bg:#3b0a0a;
+  --text:#f5e6ff;--text2:#c4a8e0;--text3:#8855bb;
+  --border:rgba(192,132,252,0.12);--border2:rgba(192,132,252,0.25);
+  --hero1:#120820;--hero2:#1a0f2e;--hero3:#2d0a5a;
+  --shadow:0 2px 12px rgba(147,51,234,0.2);
+  --hero-bg:#35206a;--hero-mut:#D2BFF2;--lime:#C8F169;--bar:#35206a;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;max-width:430px;margin:0 auto}
+
+/* ══ SCREENS ══ */
+.screen{display:none;flex-direction:column;min-height:calc(100vh - var(--bh,0px))}
+.screen.active{display:flex}
+
+/* ══ HEADER ══ */
+.hdr{background:linear-gradient(135deg,var(--hero1),var(--hero2),var(--hero3));padding:20px 16px 16px;display:flex;align-items:center;gap:12px}
+.hdr-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#fff;flex-shrink:0}
+.hdr-title{flex:1}
+.hdr-title h2{font-size:17px;font-weight:700;color:#fff}
+.hdr-title p{font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px}
+.hdr-btn{width:36px;height:36px;border-radius:50%;background:var(--accent2);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;color:#fff;flex-shrink:0}
+
+/* ══ HOME ══ */
+.hero{background:linear-gradient(135deg,var(--hero1),var(--hero2),var(--hero3));padding:24px 16px 52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50px;right:-50px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.04)}
+.hero-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.logo-row{display:flex;align-items:center;gap:10px}
+.logo-ico{width:40px;height:40px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.logo-txt{color:#fff;font-size:15px;font-weight:700}
+.logo-sub{color:rgba(255,255,255,0.4);font-size:10px;margin-top:1px}
+.hero-btns{display:flex;gap:8px}
+.hero-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;position:relative}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:#ef4444;border-radius:50%;border:1.5px solid var(--hero2)}
+.hero-greet{color:rgba(255,255,255,0.55);font-size:13px;margin-bottom:4px}
+.hero-shop{color:#fff;font-size:22px;font-weight:700}
+
+/* ══ KPI ══ */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;margin-top:-36px;position:relative;z-index:10}
+.kpi{background:var(--card);border:1.5px solid var(--border2);border-radius:16px;padding:14px;cursor:pointer;box-shadow:var(--shadow)}
+.kpi-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:10px}
+.kpi-lbl{font-size:10px;color:var(--text2);margin-bottom:3px}
+.kpi-val{font-size:20px;font-weight:700;color:var(--text)}
+.kpi-tag{font-size:10px;margin-top:5px;padding:2px 8px;border-radius:20px;display:inline-block;font-weight:600}
+.tag-g{background:var(--green-bg);color:var(--green)}
+.tag-a{background:var(--amber-bg);color:var(--amber)}
+.tag-r{background:var(--red-bg);color:var(--red)}
+.tag-b{background:rgba(24,95,165,0.15);color:var(--accent)}
+
+/* ══ NAV ══ */
+.section{padding:18px 16px 0}
+.sec-lbl{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.nav-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.nav-btn{background:var(--card);border:1.5px solid var(--border2);border-radius:14px;padding:14px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:var(--shadow)}
+.nav-ico{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.nav-lbl{font-size:13px;font-weight:700;color:var(--text)}
+.nav-sub{font-size:10px;color:var(--text2);margin-top:1px}
+
+/* ══ ALERTS ══ */
+.alert-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.alert-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.alert-name{font-size:14px;font-weight:600;color:var(--text)}
+.alert-msg{font-size:13px;color:var(--text2);margin-top:2px}
+
+/* ══ BOTTOM NAV ══ */
+.bnav{position:sticky;bottom:12px;margin:0 16px calc(12px + env(safe-area-inset-bottom,0px));background:var(--bar);border-radius:34px;display:flex;align-items:flex-end;justify-content:space-around;padding:8px 6px;height:68px;z-index:100;box-shadow:0 10px 28px rgba(8,16,40,.35)}
+.bn{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;cursor:pointer;min-width:56px;height:52px}
+.bn-ico{display:flex;align-items:center;justify-content:center;height:24px;color:var(--hero-mut)}
+.bn-ico svg{width:22px;height:22px}
+.bn.on .bn-ico{color:var(--lime)}
+.bn-lbl{font-size:10.5px;font-weight:600;color:var(--hero-mut);white-space:nowrap}
+.bn.on .bn-lbl{color:var(--lime)}
+.bn-main .bn-ico{width:54px;height:54px;border-radius:50%;background:var(--lime);color:#0F1B33;margin-top:-34px;border:4px solid var(--bg)}
+.bn-main.on .bn-ico{color:#0F1B33}
+
+/* ══ PRODUITS ══ */
+.search-wrap{padding:12px 16px;background:var(--surface);border-bottom:1.5px solid var(--border);display:flex;gap:8px}
+.search-inp{flex:1;background:var(--card);border:1.5px solid var(--border2);border-radius:10px;padding:9px 12px;font-size:14px;color:var(--text);outline:none}
+.search-inp::placeholder{color:var(--text3)}
+.cats-row{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;border-bottom:1.5px solid var(--border)}
+.cats-row::-webkit-scrollbar{display:none}
+.cat-pill{padding:6px 14px;border-radius:20px;font-size:12px;white-space:nowrap;cursor:pointer;border:1.5px solid var(--border2);background:var(--card);color:var(--text2);font-weight:600}
+.cat-pill.on{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+.stats3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px 16px;border-bottom:1.5px solid var(--border)}
+.sm{background:var(--card);border:1.5px solid var(--border2);border-radius:10px;padding:10px;text-align:center;box-shadow:var(--shadow)}
+.sm-v{font-size:18px;font-weight:700}
+.sm-l{font-size:10px;color:var(--text2);margin-top:2px}
+.prod-list{flex:1;padding:10px 16px;display:flex;flex-direction:column;gap:8px;overflow-y:auto}
+.prod-card{background:var(--card);border:1.5px solid var(--border2);border-radius:14px;padding:13px;display:flex;gap:11px;cursor:pointer;box-shadow:var(--shadow)}
+.prod-emoji{width:48px;height:48px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.prod-name{font-size:14px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prod-cat{font-size:11px;color:var(--text2);margin-top:1px}
+.prod-px{display:flex;gap:8px;align-items:center;margin-top:5px}
+.p-buy{font-size:11px;color:var(--text3)}
+.p-sell{font-size:13px;font-weight:700;color:var(--accent)}
+.prod-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.sbadge{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:700}
+.s-ok{background:var(--green-bg);color:var(--green)}
+.s-warn{background:var(--amber-bg);color:var(--amber)}
+.s-danger{background:var(--red-bg);color:var(--red)}
+.s-qty{font-size:17px;font-weight:700;color:var(--text)}
+.s-unit{font-size:10px;color:var(--text2)}
+.dluo-warn{font-size:10px;color:var(--amber);margin-top:3px}
+.fab{position:fixed;bottom:70px;right:16px;width:52px;height:52px;background:var(--accent2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;font-size:26px;color:#fff;box-shadow:0 4px 20px rgba(24,95,165,0.4);z-index:200}
+
+/* ══ DETAIL ══ */
+.detail-hero{background:var(--card);border-radius:0 0 24px 24px;padding:20px 16px 24px;text-align:center;margin-bottom:16px;border-bottom:1.5px solid var(--border2)}
+.detail-emoji{font-size:56px;margin-bottom:8px}
+.detail-name{font-size:20px;font-weight:700}
+.detail-id{font-size:12px;color:var(--text2);margin-top:4px}
+.info-card{background:var(--card);border:1.5px solid var(--border2);border-radius:14px;padding:16px;margin:0 16px 12px;box-shadow:var(--shadow)}
+.info-ttl{font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.info-row:last-child{border:none}
+.info-k{font-size:13px;color:var(--text2)}
+.info-v{font-size:13px;font-weight:700;color:var(--text)}
+.act-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;margin-bottom:12px}
+.act-btn{padding:13px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:none;text-align:center}
+.act-edit{background:rgba(24,95,165,0.12);color:var(--accent)}
+.act-del{background:var(--red-bg);color:var(--red)}
+
+/* ══ CAISSE ══ */
+.cart-sec{background:var(--card);border-top:1.5px solid var(--border2);padding:16px;flex:1;overflow-y:auto}
+.cart-ttl{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px}
+.cart-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.cart-item:last-child{border:none}
+.cart-name{flex:1;font-size:13px;color:var(--text);font-weight:600}
+.cart-sub{font-size:11px;color:var(--text2)}
+.qty-ctrl{display:flex;align-items:center;gap:8px}
+.qty-btn{width:28px;height:28px;border-radius:50%;background:var(--card2);border:1.5px solid var(--border2);color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700}
+.qty-val{font-size:14px;font-weight:700;min-width:20px;text-align:center}
+.cart-amt{font-size:14px;font-weight:700;color:var(--accent)}
+.cart-sum{padding:14px 16px;background:var(--card2);border-top:1.5px solid var(--border2)}
+.total-row{display:flex;justify-content:space-between;margin-bottom:6px}
+.total-lbl{font-size:13px;color:var(--text2)}
+.total-val{font-size:16px;font-weight:700;color:var(--text)}
+.pay-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.pay-btn{padding:9px 4px;border-radius:10px;border:1.5px solid var(--border2);background:var(--card);color:var(--text2);font-size:11px;font-weight:700;cursor:pointer;text-align:center}
+.pay-btn.on{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+
+/* ══ RAPPORTS ══ */
+.rpt-card{background:var(--card);border:1.5px solid var(--border2);border-radius:14px;padding:16px;margin:0 16px 12px;box-shadow:var(--shadow)}
+.rpt-ttl{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.big-num{font-size:28px;font-weight:700;color:var(--accent);margin:6px 0}
+.mini-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.mini-s{background:var(--card2);border-radius:10px;padding:10px;text-align:center}
+.mini-v{font-size:16px;font-weight:700}
+.mini-l{font-size:10px;color:var(--text2);margin-top:2px}
+
+/* ══ PARAMETRES ══ */
+.param-sec{padding:14px 16px 6px}
+.param-ttl{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.param-item{background:var(--card);border:1.5px solid var(--border2);border-radius:12px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;cursor:pointer;box-shadow:var(--shadow)}
+.param-left{display:flex;align-items:center;gap:12px}
+.param-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.param-name{font-size:14px;font-weight:700;color:var(--text)}
+.param-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.param-arr{color:var(--text3);font-size:18px}
+.toggle{width:44px;height:24px;background:var(--card2);border-radius:12px;position:relative;cursor:pointer;border:1.5px solid var(--border2);transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--accent2)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s}
+.toggle.on::after{left:22px}
+
+/* ══ MODAL ══ */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:500;display:none;align-items:flex-end}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;padding:20px 16px env(safe-area-inset-bottom,24px);width:100%;max-height:88vh;overflow-y:auto}
+.modal-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px}
+.modal-ttl{font-size:17px;font-weight:700;margin-bottom:16px;color:var(--text)}
+.f-grp{margin-bottom:14px}
+.f-lbl{font-size:12px;color:var(--text2);margin-bottom:5px;display:block;font-weight:600}
+.f-inp{width:100%;background:var(--card);border:1.5px solid var(--border2);border-radius:10px;padding:11px 13px;font-size:14px;color:var(--text);outline:none}
+.f-inp:focus{border-color:var(--accent)}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f-sel{width:100%;background:var(--card);border:1.5px solid var(--border2);border-radius:10px;padding:11px 13px;font-size:14px;color:var(--text);outline:none;-webkit-appearance:none}
+.btn-p{width:100%;background:var(--accent2);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+.btn-s{width:100%;background:var(--card);color:var(--text);border:1.5px solid var(--border2);border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px}
+.logo-up{background:var(--card);border:2px dashed var(--border2);border-radius:10px;padding:14px;text-align:center;cursor:pointer}
+
+/* ══ REÇU ══ */
+.recu-bg{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:600;display:none;align-items:center;justify-content:center;padding:16px}
+.recu-bg.open{display:flex}
+.recu-box{background:#fff;border-radius:16px;width:100%;max-width:360px;max-height:88vh;overflow-y:auto}
+.recu-acts{display:flex;gap:8px;padding:12px 16px;background:#f5f5f5;border-radius:0 0 16px 16px;border-top:1px solid #eee}
+.scan-btn{flex:0 0 auto;background:var(--accent2);color:#fff;border:none;border-radius:10px;padding:0 14px;font-size:20px;cursor:pointer}
+.recu-act{flex:1;padding:11px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:none;text-align:center}
+.r-print{background:#185FA5;color:#fff}
+.r-wa{background:#25D366;color:#fff}
+.r-close{background:#e5e5e5;color:#333}
+.ticket{font-family:'Courier New',monospace;font-size:12px;color:#000;background:#fff;padding:14px;line-height:1.7}
+.tc{text-align:center}
+.tdiv{border:none;border-top:1px dashed #000;margin:6px 0}
+.trow{display:flex;justify-content:space-between}
+.facture{font-family:Arial,sans-serif;color:#222;background:#fff;padding:24px}
+.f-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #185FA5}
+.f-shop{font-size:17px;font-weight:700;color:#185FA5}
+.f-info{font-size:11px;color:#666;margin-top:3px}
+.f-num h3{font-size:19px;color:#185FA5;margin-bottom:4px}
+.f-tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:12px}
+.f-tbl th{background:#185FA5;color:#fff;padding:8px 10px;text-align:left}
+.f-tbl td{padding:8px 10px;border-bottom:1px solid #eee}
+.f-tbl tr:nth-child(even) td{background:#f8f9ff}
+.f-foot{text-align:center;margin-top:16px;font-size:11px;color:#999;border-top:1px solid #eee;padding-top:12px}
+
+/* ══ TOAST ══ */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#22c55e;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+/* ── CAISSE v2 ── */
+#s-caisse.active{height:calc(100vh - var(--bh,0px));height:calc(100dvh - var(--bh,0px));min-height:0;overflow:hidden}
+#s-caisse .search-wrap{align-items:center}
+#s-caisse .search-inp{min-width:0;padding:13px 14px;font-size:15px;border-radius:14px}
+#s-caisse .scan-btn{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;padding:0 14px;min-height:48px;border-radius:14px}
+.pgrid{flex:1;min-height:0;overflow-y:auto;padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
+.ptile{position:relative;text-align:left;border:1.5px solid var(--border2);border-radius:16px;background:var(--card);padding:14px;min-height:92px;display:flex;flex-direction:column;gap:4px;cursor:pointer;color:var(--text);font-family:inherit}
+.ptile:active{transform:scale(.98)}
+.ptile.sel{border:2px solid var(--accent2);background:rgba(24,95,165,.10)}
+.ptile.out{opacity:.5;cursor:not-allowed}
+.ptile-name{font-size:15px;font-weight:700;line-height:1.2;padding-right:22px}
+.ptile-price{font-size:14px;font-weight:800;color:var(--accent)}
+.ptile-stock{font-size:12px;color:var(--text2)}
+.ptile-badge{position:absolute;top:8px;right:8px;min-width:24px;height:24px;border-radius:12px;background:var(--accent2);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.cg-empty{grid-column:1/-1;text-align:center;color:var(--text2);font-size:14px;padding:30px 10px}
+#s-caisse .cart-sec{flex:none;max-height:26vh;overflow-y:auto;padding:6px 16px}
+#s-caisse .cart-ttl{display:none}
+#s-caisse .cart-sum{flex:none;padding:12px 16px 12px}
+#s-caisse .pay-btn{padding:10px 4px;font-size:13px;border-radius:12px;min-height:44px;display:flex;align-items:center;justify-content:center}
+#s-caisse .btn-p.encaisser{background:#15803D;font-size:17px;padding:15px;border-radius:16px;margin-top:2px}
+#s-caisse .btn-p.encaisser:disabled{background:var(--border2);color:var(--text3);cursor:not-allowed}
+#s-caisse .vider{background:none;border:none;color:var(--text2);font-size:13px;font-weight:600;padding:8px;width:100%;cursor:pointer;text-decoration:underline}
+.empty{text-align:center;padding:40px 20px;color:var(--text2)}
+.empty-ico{font-size:44px;margin-bottom:12px}
+.spacer{height:28px}
+/* ── ACCUEIL v3 (design moderne) ── */
+.h2-top{display:flex;align-items:center;gap:10px;padding:24px 20px 0}
+.h2-logo{width:46px;height:46px;border-radius:14px;background:var(--hero-bg);color:var(--lime);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0;overflow:hidden;letter-spacing:.5px}
+.h2-id{flex:1;min-width:0}
+.h2-hello{font-size:13px;color:var(--text2)}
+.h2-shop{font-size:20px;font-weight:800;color:var(--text);line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.h2-seg{display:flex;background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:2px;flex-shrink:0}
+.lang-seg{width:42px;height:42px;border:0;border-radius:999px;background:transparent;color:var(--text2);font-weight:700;font-size:13px;font-family:inherit;cursor:pointer}
+.lang-seg.on{background:var(--hero-bg);color:#fff}
+.h2-bell{position:relative;flex-shrink:0;width:44px;height:44px;border-radius:22px;border:1px solid var(--border);background:var(--card);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.h2-dot{position:absolute;top:9px;right:10px;width:9px;height:9px;border-radius:50%;background:#ef4444;border:2px solid var(--card);display:none}
+.h2-card{margin:18px 20px 0;background:var(--hero-bg);border-radius:28px;padding:22px;color:#fff}
+.h2-row{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:26px}
+.h2-lbl{font-size:13px;color:var(--hero-mut);font-weight:500}
+.h2-chip{font-size:12px;font-weight:700;color:var(--lime);background:rgba(200,241,105,.14);border-radius:999px;padding:5px 10px;white-space:nowrap}
+.h2-chip.neg{color:#FCA5A5;background:rgba(252,165,165,.14)}
+.h2-big{font-size:44px;font-weight:800;margin-top:8px;color:#fff;line-height:1.05;word-break:break-word;letter-spacing:-.5px}
+.h2-big small{font-size:18px;font-weight:600;color:var(--hero-mut);letter-spacing:0}
+.h2-note{font-size:13px;color:var(--hero-mut);margin-top:6px}
+.h2-spark{display:block;width:100%;height:70px;margin-top:14px}
+.h2-acts{display:flex;gap:10px;margin-top:16px}
+.h2-b1,.h2-b2{min-height:52px;border-radius:16px;font-family:inherit;cursor:pointer;padding:0 10px}
+.h2-b1{flex:1.2;border:0;background:var(--lime);color:#0F1B33;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.h2-b2{flex:1;border:1.5px solid rgba(255,255,255,.3);background:transparent;color:#fff;font-size:14px;font-weight:600}
+.h2-b1:active,.h2-b2:active{transform:scale(.98)}
+.h2-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 20px 0}
+.h2-stat{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:14px;text-align:left;font-family:inherit;cursor:pointer;color:var(--text);display:block}
+.h2-stat .ic{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.ic-blue{background:rgba(24,95,165,.14);color:var(--accent)}
+.ic-amber{background:rgba(217,119,6,.16);color:#d97706}
+.ic-red{background:rgba(220,38,38,.14);color:#dc2626}
+.h2-stat b{display:block;font-size:24px;font-weight:800;letter-spacing:-.3px}
+.h2-stat .lbl{font-size:12px;color:var(--text2)}
+.st-card{display:block;width:calc(100% - 40px);margin:14px 20px 0;background:var(--card);border:1px solid var(--border);border-radius:22px;padding:16px;text-align:left;color:var(--text);font-family:inherit;cursor:pointer}
+.st-head{display:flex;justify-content:space-between;font-size:15px;font-weight:700}
+.st-head #start-count{font-size:13px;font-weight:600;color:var(--text2)}
+.st-bar{height:6px;border-radius:3px;background:var(--card2);margin-top:10px;overflow:hidden}
+.st-bar div{height:100%;border-radius:3px;background:var(--accent);width:0}
+.st-next{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:14px;font-weight:600}
+.st-dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--accent);flex-shrink:0}
+.h2-sc{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 20px 0}
+.h2-sc button{min-height:86px;background:var(--card);border:1px solid var(--border);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-family:inherit;font-size:13px;font-weight:600;color:var(--text);cursor:pointer}
+.h2-sc svg{color:var(--accent)}
+.h2-sech{display:flex;justify-content:space-between;align-items:baseline;margin:22px 20px 0}
+.h2-sech .t{font-size:17px;font-weight:800;color:var(--text)}
+.h2-link{background:none;border:0;color:var(--accent);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;padding:6px 0}
+#home-alerts{margin:10px 20px 0}
+#s-home .spacer{flex:1 0 auto}
+@media print{.recu-acts{display:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ══ ACCUEIL ══ -->
+<div id="essai-banner" role="status" style="display:none;position:sticky;top:0;z-index:150;text-align:center;font-weight:700;font-size:13px;padding:9px 12px;border-bottom:1px solid rgba(0,0,0,.08)"></div>
+<div class="screen active" id="s-home">
+  <div class="h2-top">
+    <div class="h2-logo" id="home-logo">MB</div>
+    <div class="h2-id"><div class="h2-hello" data-i18n="home.hello">Bonjour</div><div class="h2-shop" id="home-shop">Ma Boutique</div></div>
+    <div class="h2-seg" role="group" aria-label="Language / Langue"><button class="lang-seg on" data-l="fr" onclick="setLang('fr')">FR</button><button class="lang-seg" data-l="en" onclick="setLang('en')">EN</button></div>
+    <button class="h2-bell" aria-label="Alertes" data-i18n-aria="home.bell" onclick="homeBell()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"/></svg><span class="h2-dot" id="notif-dot"></span></button>
+  </div>
+
+  <div class="h2-card">
+    <div class="h2-row"><div class="h2-lbl" data-i18n="home.salesToday">Ventes du jour</div><div class="h2-chip" id="kpi-delta" style="display:none"></div></div>
+    <div class="h2-big"><span id="kpi-sales">0</span> <small id="kpi-devise">FCFA</small></div>
+    <div class="h2-note" id="kpi-sales-sub">Aucune vente pour l'instant</div>
+    <svg id="spark" class="h2-spark" viewBox="0 0 300 70" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <div class="h2-acts">
+      <button class="h2-b1" onclick="nav('s-caisse')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="home.newSale">Nouvelle vente</span></button>
+      <button class="h2-b2" data-i18n="home.addProd" onclick="openProdModal()">Ajouter un produit</button>
+    </div>
+  </div>
+
+  <div class="h2-stats">
+    <button class="h2-stat" onclick="nav('s-products')"><span class="ic ic-blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8l9 5 9-5ZM3 8v8l9 5 9-5V8"/></svg></span><b id="kpi-items">0</b><span class="lbl" data-i18n="home.inStock">En stock</span></button>
+    <button class="h2-stat" onclick="nav('s-products')"><span class="ic ic-amber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4 2.5 20h19L12 4ZM12 10v4M12 17.5v.5"/></svg></span><b id="kpi-alerts">0</b><span class="lbl" data-i18n="home.alerts">Alertes</span></button>
+    <button class="h2-stat" onclick="nav('s-products')"><span class="ic ic-red"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><b id="kpi-dluo">0</b><span class="lbl" data-i18n="home.dluo">DLUO proches</span></button>
+  </div>
+
+  <div id="home-start">
+    <button class="st-card" id="start-next" onclick="homeNext()">
+      <div class="st-head"><span data-i18n="home.start">Pour bien démarrer</span><span id="start-count">1 sur 3</span></div>
+      <div class="st-bar"><div id="start-fill"></div></div>
+      <div class="st-next"><span class="st-dot"></span><span id="start-next-txt" data-i18n="home.s2">Ajouter ton premier produit</span></div>
+    </button>
+  </div>
+
+  <div class="h2-sc">
+    <button onclick="openEntreeModal()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg><span data-i18n="home.entries">Entrées</span></button>
+    <button onclick="nav('s-reports')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg><span data-i18n="home.reports">Rapports</span></button>
+    <button onclick="nav('s-settings')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span data-i18n="home.settings">Paramètres</span></button>
+  </div>
+
+  <div id="home-alerts-sec" style="display:none">
+    <div class="h2-sech"><div class="t" data-i18n="home.recent">Alertes récentes</div><button class="h2-link" data-i18n="home.seeAll" onclick="nav('s-products')">Tout voir</button></div>
+    <div id="home-alerts"></div>
+  </div>
+  <div class="spacer"></div>
+  <div class="bnav">
+    <div class="bn on" onclick="nav('s-home')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3l9 8M5 10v10h14V10"/></svg></div><div class="bn-lbl" data-i18n="nav.home">Accueil</div></div>
+    <div class="bn" onclick="nav('s-products')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8l9 5 9-5ZM3 8v8l9 5 9-5V8"/></svg></div><div class="bn-lbl" data-i18n="nav.products">Produits</div></div>
+    <div class="bn bn-main" onclick="nav('s-caisse')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h3l2.4 11h10L21 7H7"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17.5" cy="19.5" r="1.3"/></svg></div><div class="bn-lbl" data-i18n="nav.sales">Caisse</div></div>
+    <div class="bn" onclick="nav('s-reports')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></div><div class="bn-lbl" data-i18n="nav.reports">Rapports</div></div>
+    <div class="bn" onclick="nav('s-settings')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></div><div class="bn-lbl" data-i18n="nav.settings">Paramètres</div></div>
+  </div>
+</div>
+
+<!-- ══ PRODUITS ══ -->
+<div class="screen" id="s-products">
+  <div class="hdr">
+    <div class="hdr-back" onclick="nav('s-home')">←</div>
+    <div class="hdr-title"><h2 data-i18n="prod.title">Produits / Products</h2><p id="prod-hdr-sub">0 articles</p></div>
+    <div class="hdr-btn" onclick="openProdModal()">＋</div>
+  </div>
+  <div class="search-wrap">
+    <input class="search-inp" id="prod-search" placeholder="🔍 Rechercher..." data-i18n-ph="prod.search" oninput="renderProds()">
+    <div style="width:38px;height:38px;background:var(--card);border:1.5px solid var(--border2);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px" onclick="nextCat()">⚙️</div>
+  </div>
+  <div class="cats-row" id="cats-row">
+    <div class="cat-pill on" data-cat="Tous" data-i18n="cat.Tous" onclick="setCat(this,'Tous')">Tous / All</div>
+    <div class="cat-pill" data-cat="Boissons" data-i18n="cat.Boissons" onclick="setCat(this,'Boissons')">🥤 Boissons</div>
+    <div class="cat-pill" data-cat="Alimentaire" data-i18n="cat.Alimentaire" onclick="setCat(this,'Alimentaire')">🍱 Alimentaire</div>
+    <div class="cat-pill" data-cat="Hygiène" data-i18n="cat.Hygiène" onclick="setCat(this,'Hygiène')">🧴 Hygiène</div>
+    <div class="cat-pill" data-cat="Divers" data-i18n="cat.Divers" onclick="setCat(this,'Divers')">📦 Divers</div>
+  </div>
+  <div class="stats3">
+    <div class="sm"><div class="sm-v" style="color:var(--green)" id="cnt-ok">0</div><div class="sm-l" data-i18n="prod.ok">En stock</div></div>
+    <div class="sm"><div class="sm-v" style="color:var(--amber)" id="cnt-warn">0</div><div class="sm-l" data-i18n="prod.warn">Alertes</div></div>
+    <div class="sm"><div class="sm-v" style="color:var(--red)" id="cnt-rupt">0</div><div class="sm-l" data-i18n="prod.rupt">Ruptures</div></div>
+  </div>
+  <div class="prod-list" id="prod-list"></div>
+  <button class="fab" onclick="openProdModal()">＋</button>
+</div>
+
+<!-- ══ DETAIL ══ -->
+<div class="screen" id="s-detail">
+  <div class="hdr">
+    <div class="hdr-back" onclick="nav('s-products')">←</div>
+    <div class="hdr-title"><h2 data-i18n="d.title">Détail / Detail</h2><p id="detail-id"></p></div>
+  </div>
+  <div style="flex:1;overflow-y:auto" id="detail-body"></div>
+  <div class="spacer"></div>
+</div>
+
+<!-- ══ CAISSE ══ -->
+<div class="screen" id="s-caisse">
+  <div class="hdr">
+    <div class="hdr-back" onclick="nav('s-home')">←</div>
+    <div class="hdr-title"><h2 data-i18n="home.newSale">Nouvelle vente</h2><p id="cart-hdr">0 article(s)</p></div>
+  </div>
+  <div class="search-wrap">
+    <input class="search-inp" id="caisse-search" aria-label="Chercher un produit" data-i18n-aria="c.search" placeholder="Chercher un produit" data-i18n-ph="c.search" oninput="renderCaisseGrid()">
+    <button class="scan-btn" onclick="openScan('caisse')" aria-label="Scanner un code-barres" data-i18n-aria="c.scanAria"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/></svg><span data-i18n="c.scan">Scanner</span></button>
+  </div>
+  <div id="caisse-results" style="display:none"></div>
+  <div class="pgrid" id="caisse-grid"></div>
+  <div class="cart-sec">
+    <div class="cart-ttl" data-i18n="c.cartTtl">🛒 Panier / Cart</div>
+    <div id="cart-items"></div>
+  </div>
+  <div class="cart-sum">
+    <div class="total-row"><span class="total-lbl" data-i18n="c.total">TOTAL</span><span class="total-val" id="cart-total">0</span></div>
+    <div class="pay-btns">
+      <div class="pay-btn on" id="pay-cash" data-i18n="pay.cash" onclick="setPay('cash')">Espèces</div>
+      <div class="pay-btn" id="pay-momo" onclick="setPay('momo')">Mobile Money</div>
+      <div class="pay-btn" id="pay-card" data-i18n="pay.card" onclick="setPay('card')">Carte</div>
+    </div>
+    <button class="btn-p encaisser" id="btn-encaisser" onclick="confirmSale()" disabled>Encaisser</button>
+    <button class="vider" data-i18n="c.clear" onclick="clearCart()">Vider le panier</button>
+  </div>
+  <div class="bnav">
+    <div class="bn" onclick="nav('s-home')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3l9 8M5 10v10h14V10"/></svg></div><div class="bn-lbl" data-i18n="nav.home">Accueil</div></div>
+    <div class="bn" onclick="nav('s-products')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8l9 5 9-5ZM3 8v8l9 5 9-5V8"/></svg></div><div class="bn-lbl" data-i18n="nav.products">Produits</div></div>
+    <div class="bn on bn-main" onclick="nav('s-caisse')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h3l2.4 11h10L21 7H7"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17.5" cy="19.5" r="1.3"/></svg></div><div class="bn-lbl" data-i18n="nav.sales">Caisse</div></div>
+    <div class="bn" onclick="nav('s-reports')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></div><div class="bn-lbl" data-i18n="nav.reports">Rapports</div></div>
+    <div class="bn" onclick="nav('s-settings')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></div><div class="bn-lbl" data-i18n="nav.settings">Paramètres</div></div>
+  </div>
+</div>
+
+<!-- ══ RAPPORTS ══ -->
+<div class="screen" id="s-reports">
+  <div class="hdr">
+    <div class="hdr-back" onclick="nav('s-home')">←</div>
+    <div class="hdr-title"><h2 data-i18n="rep.title">Rapports / Reports</h2><p data-i18n="rep.sub">Tableau de bord</p></div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding-top:14px">
+    <div class="rpt-card" style="padding:10px">
+      <button class="btn-p" style="margin-top:0" data-i18n="rep.z" onclick="openZ()">🧾 Ticket Z (fin de journée)</button>
+      <button class="btn-p" style="margin-top:8px" data-i18n="rep.bilan" onclick="openBilan()">📊 Bilan (semaine / mois / année)</button>
+    </div>
+    <div class="rpt-card">
+      <div class="rpt-ttl" data-i18n="rep.today">💰 Ventes aujourd'hui</div>
+      <div class="big-num" id="rpt-ca">0</div>
+      <div class="mini-row">
+        <div class="mini-s"><div class="mini-v" id="rpt-txn">0</div><div class="mini-l" data-i18n="rep.txn">Transactions</div></div>
+        <div class="mini-s"><div class="mini-v" id="rpt-avg">0</div><div class="mini-l" data-i18n="rep.avg">Panier moy.</div></div>
+        <div class="mini-s"><div class="mini-v" id="rpt-marge">0%</div><div class="mini-l" data-i18n="rep.margin">Marge</div></div>
+      </div>
+    </div>
+    <div class="rpt-card">
+      <div class="rpt-ttl" data-i18n="rep.stockVal">📦 Valeur du stock</div>
+      <div class="big-num" id="rpt-stock">0</div>
+      <div class="mini-row">
+        <div class="mini-s"><div class="mini-v" id="rpt-np">0</div><div class="mini-l" data-i18n="rep.prods">Produits</div></div>
+        <div class="mini-s"><div class="mini-v" id="rpt-nal">0</div><div class="mini-l" data-i18n="rep.alerts">Alertes</div></div>
+        <div class="mini-s"><div class="mini-v" id="rpt-nrt">0</div><div class="mini-l" data-i18n="rep.rupt">Ruptures</div></div>
+      </div>
+    </div>
+    <div class="rpt-card"><div class="rpt-ttl" data-i18n="rep.top">📋 Top ventes</div><div id="rpt-top"><div style="color:var(--text2);font-size:13px;padding:8px">Aucune vente</div></div></div>
+    <div class="rpt-card"><div class="rpt-ttl" data-i18n="rep.dluoTtl">⏰ Alertes DLUO</div><div id="rpt-dluo"><div style="color:var(--text2);font-size:13px;padding:8px">✅ Aucune alerte</div></div></div>
+  </div>
+  <div class="spacer"></div>
+  <div class="bnav">
+    <div class="bn" onclick="nav('s-home')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3l9 8M5 10v10h14V10"/></svg></div><div class="bn-lbl" data-i18n="nav.home">Accueil</div></div>
+    <div class="bn" onclick="nav('s-products')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8l9 5 9-5ZM3 8v8l9 5 9-5V8"/></svg></div><div class="bn-lbl" data-i18n="nav.products">Produits</div></div>
+    <div class="bn bn-main" onclick="nav('s-caisse')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h3l2.4 11h10L21 7H7"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17.5" cy="19.5" r="1.3"/></svg></div><div class="bn-lbl" data-i18n="nav.sales">Caisse</div></div>
+    <div class="bn on" onclick="nav('s-reports')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></div><div class="bn-lbl" data-i18n="nav.reports">Rapports</div></div>
+    <div class="bn" onclick="nav('s-settings')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></div><div class="bn-lbl" data-i18n="nav.settings">Paramètres</div></div>
+  </div>
+</div>
+
+<!-- ══ PARAMETRES ══ -->
+<div class="screen" id="s-settings">
+  <div class="hdr">
+    <div class="hdr-back" onclick="nav('s-home')">←</div>
+    <div class="hdr-title"><h2 data-i18n="set.title">Paramètres / Settings</h2></div>
+  </div>
+  <div style="flex:1;overflow-y:auto">
+
+    <div class="param-sec">
+      <div class="param-ttl" data-i18n="set.account">👤 Compte / Account</div>
+      <div class="param-item" onclick="doLogout()">
+        <div class="param-left"><div class="param-ico" style="background:rgba(220,38,38,0.12)">🚪</div><div><div class="param-name" data-i18n="set.logout">Se déconnecter</div><div class="param-sub" id="acct-email">-</div></div></div>
+        <span class="param-arr">›</span>
+      </div>
+      <div class="param-item" id="admin-card" style="display:none" onclick="openAdmin()">
+        <div class="param-left"><div class="param-ico" style="background:rgba(24,95,165,0.12)">🛡️</div><div><div class="param-name" data-i18n="set.admin">Admin : comptes clients</div><div class="param-sub" data-i18n="set.adminSub">Essais, activer, bloquer</div></div></div>
+        <span class="param-arr">›</span>
+      </div>
+    </div>
+
+    <div class="param-sec">
+      <div class="param-ttl" data-i18n="set.lang">🌐 Langue / Language</div>
+      <div class="param-item" onclick="setLang('fr')">
+        <div class="param-left"><div class="param-ico" style="background:rgba(24,95,165,0.12)">🇫🇷</div><div><div class="param-name">Français</div></div></div>
+        <span id="chk-lang-fr" style="font-size:18px;color:var(--green)">✓</span>
+      </div>
+      <div class="param-item" onclick="setLang('en')">
+        <div class="param-left"><div class="param-ico" style="background:rgba(24,95,165,0.12)">🇬🇧</div><div><div class="param-name">English</div></div></div>
+        <span id="chk-lang-en" style="font-size:18px;color:var(--text3)">○</span>
+      </div>
+    </div>
+
+    <div class="param-sec">
+      <div class="param-ttl" data-i18n="set.shop">🏪 Boutique / Store</div>
+      <div class="param-item" onclick="editShopName()">
+        <div class="param-left"><div class="param-ico" style="background:rgba(24,95,165,0.12)">🏪</div><div><div class="param-name" data-i18n="set.shopName">Nom boutique</div><div class="param-sub" id="set-name">Ma Boutique</div></div></div>
+        <span class="param-arr">›</span>
+      </div>
+      <div class="param-item" onclick="editShopAddress()">
+        <div class="param-left"><div class="param-ico" style="background:rgba(22,163,74,0.12)">📍</div><div><div class="param-name" data-i18n="set.addr">Adresse</div><div class="param-sub" id="set-addr">Non renseignée</div></div></div>
+        <span class="param-arr">›</span>
+      </div>
+      <div class="param-item" onclick="editShopPhone()">
+        <div class="param-left"><div class="param-ico" style="background:rgba(217,119,6,0.12)">📞</div><div><div class="param-name" data-i18n="set.phone">Téléphone</div><div class="param-sub" id="set-phone">Non renseigné</div></div></div>
+        <span class="param-arr">›</span>
+      </div>
+      <div class="param-item" onclick="editShopEmail()">
+        <div class="param-left"><div class="param-ico" style="background:rgba(83,74,183,0.12)">📧</div><div><div class="param-name" data-i18n="set.email">Email</div><div class="param-sub" id="set-email">Non renseigné</div></div></div>
+        <span class="param-arr">›</span>
+      </div>
+      <div class="param-item" onclick="openLogoModal()">
+        <div class="param-left">
+          <div class="param-ico" style="background:rgba(153,53,86,0.12);overflow:hidden" id="logo-prev">🖼️</div>
+          <div><div class="param-name" data-i18n="set.logo">Logo boutique</div><div class="param-sub" id="set-logo-lbl">Appuyer pour ajouter</div></div>
+        </div>
+        <input type="file" id="logo-inp" accept="image/*" style="display:none" onchange="handleLogo(this)">
+        <span class="param-arr">›</span>
+      </div>
+    </div>
+
+    <div class="param-sec">
+      <div class="param-ttl" data-i18n="set.currency">💰 Devise / Currency</div>
+      <div class="param-item" onclick="selectDevise('FCFA')">
+        <div class="param-left"><div class="param-ico" style="background:rgba(22,163,74,0.12)">🇨🇲</div><div><div class="param-name" data-i18n="cur.FCFA">FCFA — Franc CFA</div><div class="param-sub" data-i18n="cur.FCFAs">Cameroun, Afrique centrale</div></div></div>
+        <span id="chk-FCFA" style="font-size:18px;color:var(--green)">✓</span>
+      </div>
+      <div class="param-item" onclick="selectDevise('XOF')">
+        <div class="param-left"><div class="param-ico" style="background:rgba(22,163,74,0.12)">🌍</div><div><div class="param-name" data-i18n="cur.XOF">XOF — Franc CFA UEMOA</div><div class="param-sub" data-i18n="cur.XOFs">Sénégal, Côte d'Ivoire...</div></div></div>
+        <span id="chk-XOF" style="font-size:18px;color:var(--text3)">○</span>
+      </div>
+      <div class="param-item" onclick="selectDevise('USD')">
+        <div class="param-left"><div class="param-ico" style="background:rgba(24,95,165,0.12)">🇺🇸</div><div><div class="param-name" data-i18n="cur.USD">USD — Dollar américain</div></div></div>
+        <span id="chk-USD" style="font-size:18px;color:var(--text3)">○</span>
+      </div>
+      <div class="param-item" onclick="selectDevise('EUR')">
+        <div class="param-left"><div class="param-ico" style="background:rgba(83,74,183,0.12)">🇪🇺</div><div><div class="param-name" data-i18n="cur.EUR">EUR — Euro</div></div></div>
+        <span id="chk-EUR" style="font-size:18px;color:var(--text3)">○</span>
+      </div>
+      <div class="param-item" onclick="selectDevise('GNF')">
+        <div class="param-left"><div class="param-ico" style="background:rgba(22,163,74,0.12)">🇬🇳</div><div><div class="param-name" data-i18n="cur.GNF">GNF — Franc guinéen</div></div></div>
+        <span id="chk-GNF" style="font-size:18px;color:var(--text3)">○</span>
+      </div>
+    </div>
+
+    <div class="param-sec">
+      <div class="param-ttl" data-i18n="set.receipts">🧾 Reçus & Factures</div>
+      <div class="param-item" onclick="selectRecuFmt('ticket')">
+        <div class="param-left"><div class="param-ico" style="background:rgba(24,95,165,0.12)">🖨️</div><div><div class="param-name" data-i18n="set.ticket">Ticket thermique 58mm</div><div class="param-sub" data-i18n="set.ticketS">Format caissier</div></div></div>
+        <span id="chk-ticket" style="font-size:18px;color:var(--green)">✓</span>
+      </div>
+      <div class="param-item" onclick="selectRecuFmt('facture')">
+        <div class="param-left"><div class="param-ico" style="background:rgba(83,74,183,0.12)">📄</div><div><div class="param-name" data-i18n="set.invoice">Facture A4 professionnelle</div><div class="param-sub" data-i18n="set.invoiceS">Format entreprise</div></div></div>
+        <span id="chk-facture" style="font-size:18px;color:var(--text3)">○</span>
+      </div>
+      <div class="param-item" onclick="editMsgRecu()">
+        <div class="param-left"><div class="param-ico" style="background:rgba(217,119,6,0.12)">💬</div><div><div class="param-name" data-i18n="set.thanks">Message de remerciement</div><div class="param-sub" id="set-msg">Merci pour votre achat !</div></div></div>
+        <span class="param-arr">›</span>
+      </div>
+    </div>
+
+    <div class="param-sec">
+      <div class="param-ttl" data-i18n="set.theme">🎨 Thème / Theme</div>
+      <div class="param-item" onclick="applyTheme('light')"><div class="param-left"><div class="param-ico" style="background:#fef3c7">☀️</div><div><div class="param-name" data-i18n="th.light">Clair / Light</div></div></div><span id="chk-light" style="font-size:18px">✓</span></div>
+      <div class="param-item" onclick="applyTheme('dark')"><div class="param-left"><div class="param-ico" style="background:#1c1c2e">🌙</div><div><div class="param-name" data-i18n="th.dark">Sombre / Dark</div></div></div><span id="chk-dark" style="font-size:18px;color:var(--text3)">○</span></div>
+      <div class="param-item" onclick="applyTheme('violet')"><div class="param-left"><div class="param-ico" style="background:#2d1a50">💜</div><div><div class="param-name">Violet</div></div></div><span id="chk-violet" style="font-size:18px;color:var(--text3)">○</span></div>
+    </div>
+
+    <div class="param-sec">
+      <div class="param-ttl" data-i18n="set.data">💾 Données / Data</div>
+      <div class="param-item" onclick="exportData()"><div class="param-left"><div class="param-ico" style="background:rgba(22,163,74,0.12)">📤</div><div><div class="param-name" data-i18n="set.export">Exporter données</div><div class="param-sub" data-i18n="set.exportS">Backup JSON</div></div></div><span class="param-arr">›</span></div>
+      <div class="param-item" onclick="resetData()"><div class="param-left"><div class="param-ico" style="background:var(--red-bg)">🗑️</div><div><div class="param-name" style="color:var(--red)" data-i18n="set.reset">Réinitialiser</div><div class="param-sub" data-i18n="set.resetS">Effacer toutes les données</div></div></div><span class="param-arr">›</span></div>
+    </div>
+
+    <div style="text-align:center;padding:20px;color:var(--text3);font-size:11px">HOMS-STOCK MANAGER v3.1<br>Homslo/Vision · Le futur maintenant</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="bnav">
+    <div class="bn" onclick="nav('s-home')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3l9 8M5 10v10h14V10"/></svg></div><div class="bn-lbl" data-i18n="nav.home">Accueil</div></div>
+    <div class="bn" onclick="nav('s-products')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8l9 5 9-5ZM3 8v8l9 5 9-5V8"/></svg></div><div class="bn-lbl" data-i18n="nav.products">Produits</div></div>
+    <div class="bn bn-main" onclick="nav('s-caisse')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h3l2.4 11h10L21 7H7"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17.5" cy="19.5" r="1.3"/></svg></div><div class="bn-lbl" data-i18n="nav.sales">Caisse</div></div>
+    <div class="bn" onclick="nav('s-reports')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></div><div class="bn-lbl" data-i18n="nav.reports">Rapports</div></div>
+    <div class="bn on" onclick="nav('s-settings')"><div class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></div><div class="bn-lbl" data-i18n="nav.settings">Paramètres</div></div>
+  </div>
+</div>
+
+<!-- ══ MODAL PRODUIT ══ -->
+<div class="modal-bg" id="m-prod">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-ttl" id="m-prod-ttl">➕ Nouveau produit</div>
+    <div class="f-grp"><label class="f-lbl" data-i18n="f.name">Nom / Name *</label><input class="f-inp" id="f-name" placeholder="Ex: Coca-Cola 33cl" data-i18n-ph="f.nameEx"></div>
+    <div class="f-grp"><label class="f-lbl" data-i18n="f.cat">Catégorie</label><select class="f-sel" id="f-cat"><option value="Boissons" data-i18n="cat.Boissons">🥤 Boissons</option><option value="Alimentaire" data-i18n="cat.Alimentaire">🍱 Alimentaire</option><option value="Hygiène" data-i18n="cat.Hygiène">🧴 Hygiène</option><option value="Divers" data-i18n="cat.Divers">📦 Divers</option></select></div>
+    <div class="f-row">
+      <div class="f-grp"><label class="f-lbl"><span data-i18n="f.buy">Prix achat</span> (<span class="lbl-devise">FCFA</span>)</label><input class="f-inp" id="f-achat" type="number" placeholder="350"></div>
+      <div class="f-grp"><label class="f-lbl"><span data-i18n="f.sell">Prix vente</span> (<span class="lbl-devise">FCFA</span>) *</label><input class="f-inp" id="f-vente" type="number" placeholder="500"></div>
+    </div>
+    <div class="f-row">
+      <div class="f-grp"><label class="f-lbl" data-i18n="f.initStock">Stock initial</label><input class="f-inp" id="f-stock" type="number" placeholder="0"></div>
+      <div class="f-grp"><label class="f-lbl" data-i18n="f.thr">Seuil alerte</label><input class="f-inp" id="f-seuil" type="number" placeholder="5"></div>
+    </div>
+    <div class="f-grp"><label class="f-lbl" data-i18n="f.barcode">Code-barres (optionnel)</label><div style="display:flex;gap:8px"><input class="f-inp" id="f-barcode" placeholder="5000112637922"><button type="button" class="scan-btn" onclick="openScan('prod')">📷</button></div></div>
+    <input type="hidden" id="f-id">
+    <button class="btn-p" data-i18n="f.save" onclick="saveProd()">💾 Enregistrer</button>
+    <button class="btn-s" data-i18n="f.cancel" onclick="closeModal('m-prod')">Annuler</button>
+  </div>
+</div>
+
+<!-- ══ MODAL LOGO ══ -->
+<div class="modal-bg" id="m-logo">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-ttl" data-i18n="lg.title">🖼️ Logo boutique</div>
+    <div class="f-grp">
+      <label class="f-lbl" data-i18n="lg.opt1">Option 1 — Coller une URL d'image</label>
+      <input class="f-inp" id="logo-url" placeholder="https://mon-site.com/logo.png">
+    </div>
+    <button class="btn-p" data-i18n="lg.use" onclick="saveLogoUrl()">✅ Utiliser cette URL</button>
+    <div style="text-align:center;padding:10px;color:var(--text2);font-size:12px" data-i18n="lg.or">— ou —</div>
+    <div class="f-grp">
+      <label class="f-lbl" data-i18n="lg.opt2">Option 2 — Choisir depuis votre téléphone</label>
+      <div style="background:var(--card);border:2px dashed var(--border2);border-radius:10px;padding:16px;text-align:center;cursor:pointer" onclick="document.getElementById('logo-inp').click()">
+        <div style="font-size:28px">📁</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:6px" data-i18n="lg.pick">Appuyer pour choisir un fichier</div>
+      </div>
+      <input type="file" id="logo-inp" accept="image/*" style="display:none" onchange="handleLogo(this)">
+    </div>
+    <button class="btn-s" data-i18n="f.cancel" onclick="closeModal('m-logo')">Annuler</button>
+  </div>
+</div>
+<div class="modal-bg" id="m-edit">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-ttl" id="m-edit-ttl">✏️ Modifier</div>
+    <div class="f-grp"><label class="f-lbl" id="m-edit-lbl" data-i18n="ed.value">Valeur</label><input class="f-inp" id="m-edit-val" placeholder="..."></div>
+    <button class="btn-p" data-i18n="f.save" onclick="saveEdit()">💾 Enregistrer</button>
+    <button class="btn-s" data-i18n="f.cancel" onclick="closeModal('m-edit')">Annuler</button>
+  </div>
+</div>
+<div class="modal-bg" id="m-entree">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-ttl" data-i18n="e.title">📥 Entrée stock / Stock in</div>
+    <div class="f-grp"><label class="f-lbl" data-i18n="e.prod">Produit *</label><select class="f-sel" id="e-prod"></select></div>
+    <div class="f-row">
+      <div class="f-grp"><label class="f-lbl" data-i18n="e.qty">Quantité *</label><input class="f-inp" id="e-qty" type="number" placeholder="24"></div>
+      <div class="f-grp"><label class="f-lbl" data-i18n="e.unit">Prix achat unitaire</label><input class="f-inp" id="e-prix" type="number" placeholder="350"></div>
+    </div>
+    <div class="f-grp"><label class="f-lbl" data-i18n="e.supplier">Fournisseur</label><input class="f-inp" id="e-fournisseur" placeholder="Ex: SABC, Nestlé..." data-i18n-ph="e.supplierEx"></div>
+    <div class="f-row">
+      <div class="f-grp"><label class="f-lbl" data-i18n="e.lot">N° Lot</label><input class="f-inp" id="e-lot" placeholder="LOT-001"></div>
+      <div class="f-grp"><label class="f-lbl" data-i18n="e.dluo">DLUO</label><input class="f-inp" id="e-dluo" type="date"></div>
+    </div>
+    <button class="btn-p" data-i18n="e.save" onclick="saveEntree()">✅ Enregistrer</button>
+    <button class="btn-s" data-i18n="f.cancel" onclick="closeModal('m-entree')">Annuler</button>
+  </div>
+</div>
+
+<!-- ══ MODAL REÇU ══ -->
+<div class="recu-bg" id="m-recu">
+  <div class="recu-box">
+    <div id="recu-content"></div>
+    <div style="padding:10px 16px 0;background:#f5f5f5">
+      <button class="recu-act" id="btn-recu-img" style="width:100%;min-height:48px;background:#15803D;color:#fff;font-size:15px" data-i18n="rcpt.print" onclick="printReceiptDirect()">🖨️ Imprimer le reçu</button>
+      <div id="prn-msg" role="status" style="font-size:12px;min-height:16px;margin:6px 2px 0;color:#555;text-align:center"></div>
+      <button class="recu-act" id="btn-recu-share" style="width:100%;min-height:36px;margin-top:4px;background:#e5e5e5;color:#333;font-size:12px" data-i18n="rcpt.share" onclick="shareReceiptImage()">📤 Partager en image</button>
+    </div>
+    <div class="recu-acts">
+      <button class="recu-act r-print" data-i18n="btn.print" onclick="printRecu()">🖨️ Imprimer</button>
+      <button class="recu-act r-wa" onclick="shareWA()">📱 WhatsApp</button>
+      <button class="recu-act r-close" data-i18n="btn.close" onclick="closeModal('m-recu')">✕ Fermer</button>
+    </div>
+    <!-- Zone message WhatsApp copiable -->
+    <div id="wa-copy-zone" style="display:none;padding:12px 16px;background:#e7fbe9;border-top:1px solid #ccc">
+      <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:6px">📋 Copie ce message et colle-le sur WhatsApp :</div>
+      <textarea id="wa-text" style="width:100%;height:100px;font-size:12px;border-radius:8px;padding:8px;border:1px solid #ccc;resize:none"></textarea>
+      <button onclick="copyWA()" style="width:100%;margin-top:6px;padding:10px;background:#25D366;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer">📋 Copier le message</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TICKET Z ══ -->
+<div class="recu-bg" id="m-z">
+  <div class="recu-box">
+    <div style="display:flex;gap:8px;padding:12px 16px 0">
+      <button class="recu-act" id="z-b-ticket" data-i18n="z.ticket" onclick="setZFmt('ticket')">Ticket 58mm</button>
+      <button class="recu-act" id="z-b-a4" onclick="setZFmt('a4')">A4</button>
+    </div>
+    <div id="z-content"></div>
+    <div class="recu-acts">
+      <button class="recu-act r-print" data-i18n="btn.print" onclick="printZ()">🖨️ Imprimer</button>
+      <button class="recu-act r-wa" onclick="shareZ()">📱 WhatsApp</button>
+      <button class="recu-act r-close" data-i18n="btn.close" onclick="closeModal('m-z')">✕ Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BILAN ══ -->
+<div class="recu-bg" id="m-bilan">
+  <div class="recu-box">
+    <div style="display:flex;gap:6px;padding:12px 16px 0">
+      <button class="recu-act" id="b-b-week" data-i18n="b.week" onclick="setBPer('week')">Semaine</button>
+      <button class="recu-act" id="b-b-month" data-i18n="b.month" onclick="setBPer('month')">Mois</button>
+      <button class="recu-act" id="b-b-year" data-i18n="b.year" onclick="setBPer('year')">Année</button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 16px 0">
+      <button class="recu-act" style="flex:0 0 44px" onclick="moveBilan(-1)">‹</button>
+      <div id="b-label" style="flex:1;text-align:center;font-weight:700;font-size:13px"></div>
+      <button class="recu-act" id="b-next" style="flex:0 0 44px" onclick="moveBilan(1)">›</button>
+    </div>
+    <div id="b-content"></div>
+    <div class="recu-acts">
+      <button class="recu-act r-print" data-i18n="btn.printPdf" onclick="printBilan()">🖨️ Imprimer / PDF</button>
+      <button class="recu-act r-wa" onclick="shareBilan()">📱 WhatsApp</button>
+      <button class="recu-act r-close" data-i18n="btn.close" onclick="closeModal('m-bilan')">✕ Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCANNER ══ -->
+<div class="recu-bg" id="m-scan">
+  <div class="recu-box">
+    <div style="padding:12px 16px 0;font-weight:700;text-align:center" data-i18n="s.title">📷 Scanner un code-barres</div>
+    <div style="padding:10px 16px">
+      <video id="scan-video" playsinline muted style="width:100%;border-radius:12px;background:#000;min-height:200px"></video>
+      <div id="scan-msg" style="text-align:center;font-size:12px;color:#666;margin-top:8px" data-i18n="s.point">Pointe la caméra vers le code-barres</div>
+    </div>
+    <div class="recu-acts">
+      <button class="recu-act r-close" data-i18n="s.close" onclick="stopScan()">✕ Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ÉCRAN DE CONNEXION ══ -->
+<div id="auth-screen" style="position:fixed;inset:0;z-index:800;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow-y:auto">
+  <button class="lang-toggle" aria-label="Language / Langue" onclick="toggleLang()" style="position:absolute;top:16px;right:16px;width:44px;height:44px;border-radius:22px;border:1.5px solid var(--border2);background:var(--card);color:var(--text);font-weight:800;font-size:13px;font-family:inherit;cursor:pointer">EN</button>
+  <div style="width:100%;max-width:380px">
+    <div style="text-align:center;margin-bottom:22px">
+      <div style="font-size:44px">📦</div>
+      <div style="font-size:22px;font-weight:800;color:var(--accent)">HOMS-STOCK MANAGER</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:4px" data-i18n="au.sub">Connecte-toi ou crée ton compte</div>
+    </div>
+    <div style="background:var(--card);border:1.5px solid var(--border2);border-radius:16px;padding:18px">
+      <label class="f-lbl" data-i18n="au.email">E-mail</label>
+      <input class="f-inp" id="auth-email" type="email" autocomplete="email" placeholder="ton@email.com">
+      <label class="f-lbl" style="margin-top:12px" data-i18n="au.pw">Mot de passe</label>
+      <input class="f-inp" id="auth-pw" type="password" autocomplete="current-password" placeholder="6 caractères minimum" data-i18n-ph="au.pwPh" onkeydown="if(event.key==='Enter')doLogin()">
+      <div id="auth-msg" style="min-height:20px;font-size:12.5px;margin:10px 0 4px;text-align:center"></div>
+      <button class="btn-p" id="auth-btn-login" data-i18n="au.login" onclick="doLogin()">Se connecter</button>
+      <button class="btn-p" id="auth-btn-signup" style="background:transparent;color:var(--accent);border:1.5px solid var(--accent)" data-i18n="au.signup" onclick="doSignup()">Créer mon compte</button>
+      <button id="auth-btn-forgot" style="background:none;border:none;color:var(--accent);font-size:13px;margin-top:14px;width:100%;cursor:pointer;text-decoration:underline" data-i18n="au.forgot" onclick="doForgot()">Mot de passe oublié ?</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NOUVEAU MOT DE PASSE ══ -->
+<div id="reset-screen" style="position:fixed;inset:0;z-index:850;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow-y:auto">
+  <div style="width:100%;max-width:380px">
+    <div style="text-align:center;margin-bottom:22px">
+      <div style="font-size:44px">🔑</div>
+      <div style="font-size:20px;font-weight:800;color:var(--accent)" data-i18n="rs.title">Nouveau mot de passe</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:4px" data-i18n="rs.sub">Choisis un mot de passe que tu noteras bien</div>
+    </div>
+    <div style="background:var(--card);border:1.5px solid var(--border2);border-radius:16px;padding:18px">
+      <label class="f-lbl" data-i18n="rs.title">Nouveau mot de passe</label>
+      <input class="f-inp" id="reset-pw1" type="password" autocomplete="new-password" placeholder="6 caractères minimum" data-i18n-ph="au.pwPh">
+      <label class="f-lbl" style="margin-top:12px" data-i18n="rs.repeat">Répète-le</label>
+      <input class="f-inp" id="reset-pw2" type="password" autocomplete="new-password" placeholder="Même mot de passe" data-i18n-ph="rs.same" onkeydown="if(event.key==='Enter')doReset()">
+      <div id="reset-msg" style="min-height:20px;font-size:12.5px;margin:10px 0 4px;text-align:center"></div>
+      <button class="btn-p" id="reset-btn" data-i18n="rs.save" onclick="doReset()">Enregistrer le mot de passe</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ACCÈS SUSPENDU ══ -->
+<div id="bloque-screen" style="position:fixed;inset:0;z-index:790;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center">
+  <div style="width:100%;max-width:380px">
+    <div style="font-size:52px">🔒</div>
+    <div id="bloque-titre" style="font-size:22px;font-weight:800;color:var(--accent);margin-top:8px">Accès suspendu</div>
+    <div id="bloque-msg" style="font-size:14px;color:var(--text2);margin:12px 0 22px"></div>
+    <button class="btn-p" data-i18n="bq.retry" onclick="retryProfil()">🔄 J'ai été activé : réessayer</button>
+    <button class="btn-p" style="background:transparent;color:var(--accent);border:1.5px solid var(--accent)" data-i18n="set.logout" onclick="doLogout()">Se déconnecter</button>
+  </div>
+</div>
+
+<!-- ══ PANEL ADMIN ══ -->
+<div class="recu-bg" id="m-admin">
+  <div class="recu-box" style="max-width:420px">
+    <div style="padding:14px 16px 4px;font-weight:800;font-size:16px;color:#185FA5" data-i18n="ad.title">🛡️ Admin : comptes clients</div>
+    <div id="admin-count" style="padding:0 16px 8px;font-size:12px;color:#666"></div>
+    <div id="admin-list"></div>
+    <div class="recu-acts">
+      <button class="recu-act" style="background:#e5e5e5;color:#333" data-i18n="ad.refresh" onclick="renderAdmin()">🔄 Actualiser</button>
+      <button class="recu-act r-close" data-i18n="btn.close" onclick="closeModal('m-admin')">✕ Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ CONFIG SUPABASE ══
+const SB_URL='https://dwobhwqrervuyckvctpp.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3b2Jod3FyZXJ2dXlja3ZjdHBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyOTQ3NTcsImV4cCI6MjEwNTg3MDc1N30.3cmK0JOr3ieFkVocdvILmulFWVFmC1gGbmgMYxC9Mgo';
+// ══ CONNEXION (AUTH) ══
+let SESSION=null;
+function sbH(){
+  const tok=(SESSION&&SESSION.access_token)?SESSION.access_token:SB_KEY;
+  return {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+tok};
+}
+function saveSession(x){SESSION=x;try{localStorage.setItem('homs_auth',JSON.stringify(x));}catch(e){}}
+function clearSession(){SESSION=null;try{localStorage.removeItem('homs_auth');}catch(e){}}
+function readSession(){try{const x=localStorage.getItem('homs_auth');return x?JSON.parse(x):null;}catch(e){return null;}}
+function toSession(d){
+  return{access_token:d.access_token,refresh_token:d.refresh_token,
+    expires_at:Math.floor(Date.now()/1000)+(Number(d.expires_in)||3600),
+    user:{id:(d.user&&d.user.id)||(SESSION&&SESSION.user&&SESSION.user.id),email:(d.user&&d.user.email)||(SESSION&&SESSION.user&&SESSION.user.email)}};
+}
+async function authCall(path,body,token){
+  try{
+    const h={'Content-Type':'application/json','apikey':SB_KEY};
+    if(token)h['Authorization']='Bearer '+token;
+    const r=await fetch(SB_URL+'/auth/v1/'+path,{method:'POST',headers:h,body:JSON.stringify(body||{})});
+    const txt=await r.text();let j={};try{j=txt?JSON.parse(txt):{};}catch(e){}
+    return{ok:r.ok,status:r.status,data:j,net:false};
+  }catch(e){return{ok:false,status:0,data:{},net:true};}
+}
+async function refreshSession(){
+  if(!SESSION||!SESSION.refresh_token)return false;
+  const r=await authCall('token?grant_type=refresh_token',{refresh_token:SESSION.refresh_token});
+  if(r.ok&&r.data.access_token){saveSession(toSession(r.data));return true;}
+  if(r.net)return true;
+  clearSession();return false;
+}
+async function ensureToken(){
+  if(SESSION&&SESSION.expires_at-Math.floor(Date.now()/1000)<60){await refreshSession();}
+}
+
+async function sbReq(table,method,body,qs='',retry=true){
+  if(!SESSION)return null;
+  try{
+    await ensureToken();
+    const r=await fetch(`${SB_URL}/rest/v1/${table}${qs}`,{method,headers:{...sbH(),'Prefer':'return=representation'},body:body?JSON.stringify(body):null});
+    if(r.status===401&&retry){
+      const ok=await refreshSession();
+      if(ok)return sbReq(table,method,body,qs,false);
+      showAuth(t('au.session'));return null;
+    }
+    if(!r.ok){const e=await r.text();console.error('SB',r.status,e);return null;}
+    if(method==='DELETE')return true;
+    const txt=await r.text();return txt?JSON.parse(txt):[];
+  }catch(e){console.error('SB err',e);return null;}
+}
+
+// ══ DB LOCAL ══
+let DB={products:[],entrees:[],sorties:[],settings:{shopName:'Ma Boutique',shopInfo:'',logo:'',recuFmt:'ticket',theme:'light'}};
+
+function dbKey(){return 'homs_v3_'+(SESSION&&SESSION.user?SESSION.user.id:'anon');}
+function defaultDB(){return{products:[],entrees:[],sorties:[],settings:{shopName:'Ma Boutique',shopInfo:'',logo:'',recuFmt:'ticket',theme:'light'}};}
+function loadDB(){
+  DB=defaultDB();
+  try{const s=localStorage.getItem(dbKey());if(s)DB=JSON.parse(s);}catch(e){}
+  if(!DB.settings)DB.settings=defaultDB().settings;
+}
+function saveDB(){
+  try{localStorage.setItem(dbKey(),JSON.stringify(DB));}catch(e){}
+}
+
+// ══ LANGUE FR / EN ══
+let LANG='fr';
+try{const _l=localStorage.getItem('homs_lang');if(_l==='en'||_l==='fr')LANG=_l;}catch(e){}
+const I18N={
+fr:{
+"nav.home":"Accueil","nav.products":"Produits","nav.sales":"Caisse","nav.reports":"Rapports","nav.settings":"Paramètres",
+"home.today":"Aujourd'hui","home.salesToday":"Ventes du jour","home.noSale":"Aucune vente pour l'instant","home.sale1":"{n} vente aujourd'hui","home.saleN":"{n} ventes aujourd'hui",
+"home.newSale":"Nouvelle vente","home.addProd":"Ajouter un produit","home.start":"Pour bien démarrer","home.startCount":"{n} sur 3",
+"home.s1":"Créer ton compte","home.s2":"Ajouter ton premier produit","home.s3":"Faire ta première vente",
+"home.inStock":"En stock","home.alerts":"Alertes","home.dluo":"DLUO proches","home.entries":"Entrées","home.reports":"Rapports","home.settings":"Paramètres",
+"home.recent":"Alertes récentes","home.bell":"Alertes","home.noAlert":"Aucune alerte",
+"alert.out":"Rupture de stock","alert.low":"Stock bas: {n} unités","alert.dluo":"DLUO: {d}",
+"prod.title":"Produits","prod.count":"{n} articles","prod.search":"🔍 Rechercher...","prod.ok":"En stock","prod.warn":"Alertes","prod.rupt":"Ruptures",
+"prod.none":"Aucun produit","prod.addBtn":"➕ Ajouter","prod.buy":"Achat: {v} F","prod.units":"unités","prod.dluoLine":"⏰ DLUO: {d}",
+"cat.Tous":"Tous","cat.Boissons":"🥤 Boissons","cat.Alimentaire":"🍱 Alimentaire","cat.Hygiène":"🧴 Hygiène","cat.Divers":"📦 Divers",
+"catn.Boissons":"Boissons","catn.Alimentaire":"Alimentaire","catn.Hygiène":"Hygiène","catn.Divers":"Divers",
+"status.out":"Rupture ❌","status.low":"Alerte ⚠️","status.ok":"En stock ✅",
+"m.newProd":"➕ Nouveau produit","m.editProd":"✏️ Modifier produit",
+"f.name":"Nom *","f.nameEx":"Ex: Coca-Cola 33cl","f.cat":"Catégorie","f.buy":"Prix achat","f.sell":"Prix vente","f.initStock":"Stock initial","f.thr":"Seuil alerte","f.barcode":"Code-barres (optionnel)","f.save":"💾 Enregistrer","f.cancel":"Annuler",
+"e.title":"📥 Entrée de stock","e.prod":"Produit *","e.qty":"Quantité *","e.unit":"Prix achat unitaire","e.supplier":"Fournisseur","e.supplierEx":"Ex: SABC, Nestlé...","e.lot":"N° Lot","e.dluo":"DLUO","e.save":"✅ Enregistrer",
+"d.title":"Détail","d.stock":"Stock","d.cur":"Stock actuel","d.thr":"Seuil alerte","d.status":"Statut","d.dluo":"DLUO","d.prices":"Prix","d.buyp":"Prix achat","d.sellp":"Prix vente","d.margin":"Marge brute","d.value":"Valeur stock","d.edit":"✏️ Modifier","d.del":"🗑️ Supprimer","d.sell":"🛒 Vendre","d.entry":"📥 Entrée stock","d.confirmDel":"Supprimer ce produit ?",
+"c.search":"Chercher un produit","c.scan":"Scanner","c.scanAria":"Scanner un code-barres","c.cartTtl":"🛒 Panier","c.total":"TOTAL","c.clear":"Vider le panier","c.count":"{n} article(s)","c.pay":"Encaisser","c.hint":"Touche un produit pour l'ajouter",
+"c.empty":"Aucun produit pour l'instant.<br>Ajoute ton premier produit dans l'onglet Produits.","c.noRes":"Aucun résultat","c.rupt":"Rupture","c.stock":"Stock : {n}",
+"pay.cash":"Espèces","pay.card":"Carte",
+"s.title":"📷 Scanner un code-barres","s.point":"Pointe la caméra vers le code-barres","s.close":"✕ Fermer",
+"t.nameReq":"⚠️ Nom requis","t.priceReq":"⚠️ Prix de vente requis","t.saving":"💾 Sauvegarde cloud...","t.prodSaved":"✅ Produit sauvegardé ☁️","t.localOnly":"⚠️ Sauvegarde locale uniquement",
+"t.deleting":"🗑️ Suppression...","t.prodDeleted":"✅ Produit supprimé","t.addFirst":"⚠️ Ajoutez d'abord un produit","t.entReq":"⚠️ Produit et quantité requis","t.recording":"💾 Enregistrement...","t.entSaved":"✅ Entrée sauvegardée ☁️",
+"t.added":"✅ {n} ajouté","t.cartEmpty":"⚠️ Panier vide","t.scanNA":"⚠️ Scan non disponible ici","t.camOpen":"Ouverture de la caméra...","t.camBlocked":"⚠️ Caméra bloquée ou refusée",
+"t.unknownCode":"⚠️ Code inconnu : {c}","t.outOf":"⚠️ {n} : rupture de stock","t.codeTaken":"⚠️ Code déjà pris par {n}","t.codeSaved":"✅ Code {c} enregistré",
+"t.cloudOn":"☁️ Cloud connecté","t.synced":"✅ Données synchronisées ☁️","t.offline":"📴 Mode hors-ligne","t.langSet":"✅ Langue : Français"
+},
+en:{
+"nav.home":"Home","nav.products":"Products","nav.sales":"Sales","nav.reports":"Reports","nav.settings":"Settings",
+"home.today":"Today","home.salesToday":"Today's sales","home.noSale":"No sales yet","home.sale1":"{n} sale today","home.saleN":"{n} sales today",
+"home.newSale":"New sale","home.addProd":"Add a product","home.start":"Getting started","home.startCount":"{n} of 3",
+"home.s1":"Create your account","home.s2":"Add your first product","home.s3":"Make your first sale",
+"home.inStock":"In stock","home.alerts":"Alerts","home.dluo":"Expiring soon","home.entries":"Stock in","home.reports":"Reports","home.settings":"Settings",
+"home.recent":"Recent alerts","home.bell":"Alerts","home.noAlert":"No alerts",
+"alert.out":"Out of stock","alert.low":"Low stock: {n} units","alert.dluo":"Best before: {d}",
+"prod.title":"Products","prod.count":"{n} items","prod.search":"🔍 Search...","prod.ok":"In stock","prod.warn":"Alerts","prod.rupt":"Out of stock",
+"prod.none":"No products","prod.addBtn":"➕ Add","prod.buy":"Buy: {v} F","prod.units":"units","prod.dluoLine":"⏰ Best before: {d}",
+"cat.Tous":"All","cat.Boissons":"🥤 Drinks","cat.Alimentaire":"🍱 Food","cat.Hygiène":"🧴 Hygiene","cat.Divers":"📦 Other",
+"catn.Boissons":"Drinks","catn.Alimentaire":"Food","catn.Hygiène":"Hygiene","catn.Divers":"Other",
+"status.out":"Out of stock ❌","status.low":"Low ⚠️","status.ok":"In stock ✅",
+"m.newProd":"➕ New product","m.editProd":"✏️ Edit product",
+"f.name":"Name *","f.nameEx":"E.g. Coca-Cola 33cl","f.cat":"Category","f.buy":"Purchase price","f.sell":"Selling price","f.initStock":"Opening stock","f.thr":"Alert threshold","f.barcode":"Barcode (optional)","f.save":"💾 Save","f.cancel":"Cancel",
+"e.title":"📥 Stock in","e.prod":"Product *","e.qty":"Quantity *","e.unit":"Unit purchase price","e.supplier":"Supplier","e.supplierEx":"E.g. SABC, Nestlé...","e.lot":"Batch no.","e.dluo":"Best before (DLUO)","e.save":"✅ Save",
+"d.title":"Details","d.stock":"Stock","d.cur":"Current stock","d.thr":"Alert threshold","d.status":"Status","d.dluo":"Best before","d.prices":"Prices","d.buyp":"Purchase price","d.sellp":"Selling price","d.margin":"Gross margin","d.value":"Stock value","d.edit":"✏️ Edit","d.del":"🗑️ Delete","d.sell":"🛒 Sell","d.entry":"📥 Stock in","d.confirmDel":"Delete this product?",
+"c.search":"Search a product","c.scan":"Scan","c.scanAria":"Scan a barcode","c.cartTtl":"🛒 Cart","c.total":"TOTAL","c.clear":"Clear cart","c.count":"{n} item(s)","c.pay":"Charge","c.hint":"Tap a product to add it",
+"c.empty":"No products yet.<br>Add your first product in the Products tab.","c.noRes":"No results","c.rupt":"Out of stock","c.stock":"Stock: {n}",
+"pay.cash":"Cash","pay.card":"Card",
+"s.title":"📷 Scan a barcode","s.point":"Point the camera at the barcode","s.close":"✕ Close",
+"t.nameReq":"⚠️ Name required","t.priceReq":"⚠️ Selling price required","t.saving":"💾 Saving to cloud...","t.prodSaved":"✅ Product saved ☁️","t.localOnly":"⚠️ Saved on this device only",
+"t.deleting":"🗑️ Deleting...","t.prodDeleted":"✅ Product deleted","t.addFirst":"⚠️ Add a product first","t.entReq":"⚠️ Product and quantity required","t.recording":"💾 Saving...","t.entSaved":"✅ Stock entry saved ☁️",
+"t.added":"✅ {n} added","t.cartEmpty":"⚠️ Cart is empty","t.scanNA":"⚠️ Scanning not available here","t.camOpen":"Opening the camera...","t.camBlocked":"⚠️ Camera blocked or refused",
+"t.unknownCode":"⚠️ Unknown code: {c}","t.outOf":"⚠️ {n}: out of stock","t.codeTaken":"⚠️ Code already used by {n}","t.codeSaved":"✅ Code {c} saved",
+"t.cloudOn":"☁️ Cloud connected","t.synced":"✅ Data synced ☁️","t.offline":"📴 Offline mode","t.langSet":"✅ Language: English"
+}};
+Object.assign(I18N.fr,{"shop.default":"Ma Boutique","set.title": "Paramètres", "set.account": "👤 Compte", "set.logout": "Se déconnecter", "set.admin": "Admin : comptes clients", "set.adminSub": "Essais, activer, bloquer", "set.lang": "🌐 Langue", "set.shop": "🏪 Boutique", "set.shopName": "Nom boutique", "set.addr": "Adresse", "set.phone": "Téléphone", "set.email": "Email", "set.logo": "Logo boutique", "set.notF": "Non renseignée", "set.notM": "Non renseigné", "set.logoAdd": "Appuyer pour ajouter", "set.logoDone": "Logo ajouté ✅", "set.currency": "💰 Devise", "cur.FCFA": "FCFA — Franc CFA", "cur.FCFAs": "Cameroun, Afrique centrale", "cur.XOF": "XOF — Franc CFA UEMOA", "cur.XOFs": "Sénégal, Côte d'Ivoire...", "cur.USD": "USD — Dollar américain", "cur.EUR": "EUR — Euro", "cur.GNF": "GNF — Franc guinéen", "set.receipts": "🧾 Reçus & Factures", "set.ticket": "Ticket thermique 58mm", "set.ticketS": "Format caissier", "set.invoice": "Facture A4 professionnelle", "set.invoiceS": "Format entreprise", "set.thanks": "Message de remerciement", "rcpt.thanks": "Merci pour votre achat !", "set.theme": "🎨 Thème", "th.light": "Clair", "th.dark": "Sombre", "th.violet": "Violet", "set.data": "💾 Données", "set.export": "Exporter données", "set.exportS": "Backup JSON", "set.reset": "Réinitialiser", "set.resetS": "Effacer toutes les données", "rep.title": "Rapports", "rep.sub": "Tableau de bord", "rep.z": "🧾 Ticket Z (fin de journée)", "rep.bilan": "📊 Bilan (semaine / mois / année)", "rep.today": "💰 Ventes aujourd'hui", "rep.txn": "Transactions", "rep.avg": "Panier moy.", "rep.margin": "Marge", "rep.stockVal": "📦 Valeur du stock", "rep.prods": "Produits", "rep.alerts": "Alertes", "rep.rupt": "Ruptures", "rep.top": "📋 Top ventes", "rep.noSale": "Aucune vente", "rep.sold": "{n} vendus", "rep.dluoTtl": "⏰ Alertes DLUO", "rep.noDluo": "✅ Aucune alerte DLUO", "rep.expired": "PÉRIMÉ", "lg.title": "🖼️ Logo boutique", "lg.opt1": "Option 1 — Coller une URL d'image", "lg.use": "✅ Utiliser cette URL", "lg.or": "— ou —", "lg.opt2": "Option 2 — Choisir depuis votre téléphone", "lg.pick": "Appuyer pour choisir un fichier", "ed.value": "Valeur", "btn.print": "🖨️ Imprimer", "btn.printPdf": "🖨️ Imprimer / PDF", "btn.close": "✕ Fermer", "z.ticket": "Ticket 58mm", "z.a4": "A4", "b.week": "Semaine", "b.month": "Mois", "b.year": "Année", "z.titleA4": "TICKET Z - FIN DE JOURNÉE", "z.nb": "Nombre de ventes", "z.ca": "Chiffre d'affaires", "z.margin": "Marge", "z.sold": "Produits vendus", "z.product": "Produit", "z.qty": "Qté", "z.none": "Aucune vente aujourd'hui", "z.t": "TICKET Z", "z.nbS": "Nb ventes:", "z.caDay": "CA du jour", "z.marginC": "Marge:", "z.soldCaps": "PRODUITS VENDUS", "bl.weekOf": "Semaine du {a} au {b}", "bl.year": "Année {y}", "bl.title": "BILAN - {l}", "bl.purchases": "Achats (entrées de stock)", "bl.stockToday": "Valeur du stock (aujourd'hui)", "bl.gap": "Écart avec la période d'avant", "bl.ca": "CA", "bl.top5": "5 produits les plus vendus", "bl.new": "▲ nouveau", "au.sub": "Connecte-toi ou crée ton compte", "au.email": "E-mail", "au.pw": "Mot de passe", "au.pwPh": "6 caractères minimum", "au.login": "Se connecter", "au.signup": "Créer mon compte", "au.forgot": "Mot de passe oublié ?", "rs.title": "Nouveau mot de passe", "rs.sub": "Choisis un mot de passe que tu noteras bien", "rs.repeat": "Répète-le", "rs.same": "Même mot de passe", "rs.save": "Enregistrer le mot de passe", "au.noNet": "Pas de connexion Internet", "au.bad": "E-mail ou mot de passe incorrect", "au.exists": "Cet e-mail a déjà un compte. Connecte-toi.", "au.confirm": "Confirme d'abord ton e-mail", "au.diff": "Choisis un mot de passe différent de l'ancien", "au.pw6": "Mot de passe : 6 caractères minimum", "au.rate": "Trop d'essais, réessaie dans quelques minutes", "au.err": "Erreur {s}", "au.fill": "Écris ton e-mail et ton mot de passe", "au.logging": "Connexion...", "au.creating": "Création du compte...", "au.created": "Compte créé ! Vérifie ton e-mail pour confirmer, puis connecte-toi.", "au.needEmail": "Écris d'abord ton e-mail dans la case ci-dessus", "au.sending": "Envoi...", "au.sent": "Si ce compte existe, un e-mail vient d'être envoyé. Vérifie ta boîte (et les spams).", "au.expired": "Lien expiré. Refais « Mot de passe oublié ».", "au.linkExp": "Lien expiré ou déjà utilisé. Refais « Mot de passe oublié ».", "au.session": "Session expirée, reconnecte-toi", "rs.differ": "Les deux mots de passe sont différents", "rs.saving": "Enregistrement...", "t.pwChanged": "✅ Mot de passe changé", "es.left": "⏳ Essai gratuit : il vous reste {j} jour", "es.leftN": "⏳ Essai gratuit : il vous reste {j} jours", "bq.susp": "Accès suspendu", "bq.ended": "Essai terminé", "bq.msgSusp": "Ton compte est suspendu. Contacte l'administrateur pour le réactiver.", "bq.msgEnd": "Ton essai gratuit de 14 jours est terminé. Contacte l'administrateur pour activer ton compte.", "bq.retry": "🔄 J'ai été activé : réessayer", "t.restored": "✅ Accès rétabli", "t.stillSusp": "⚠️ Toujours suspendu", "ad.title": "🛡️ Admin : comptes clients", "ad.refresh": "🔄 Actualiser", "ad.loading": "Chargement...", "ad.fail": "Impossible de charger la liste (hors-ligne ?)", "ad.count1": "{n} compte", "ad.countN": "{n} comptes", "ad.active": "✅ Actif", "ad.blocked": "⛔ Bloqué", "ad.trial": "⏳ Essai : {j} j", "ad.trialEnd": "⌛ Essai terminé", "ad.joined": "inscrit le", "ad.me": "(ton compte)", "ad.activate": "Activer", "ad.block": "Bloquer", "ad.plus7": "+7 jours", "ad.noEmail": "(sans e-mail)", "ad.none": "Aucun compte", "ad.self": "⚠️ Tu ne peux pas modifier ton propre compte ici", "ad.confirmBlock": "Bloquer ce compte ?", "ad.refused": "⚠️ Erreur : modification refusée", "ad.nothing": "⚠️ Rien n'a été modifié", "ad.updated": "✅ Compte mis à jour", "lo.confirm": "Se déconnecter ?", "lo.legacy": "Des données de ton ancienne version existent sur ce téléphone (nom de boutique, logo...). Les reprendre dans ce compte ?", "t.themeChanged": "Thème changé", "t.saved": "✅ {v} enregistré", "t.urlInvalid": "⚠️ Entrez une URL valide", "t.logoSaved": "✅ Logo enregistré", "t.currency": "✅ Devise: {d}", "t.format": "✅ Format: {f}", "fmt.facture": "Facture A4", "fmt.ticket": "Ticket 58mm", "t.exported": "✅ Données exportées", "rs.confirm": "⚠️ Réinitialiser TOUTES les données ? Action irréversible.", "t.resetDone": "✅ Réinitialisé", "t.popup": "⚠️ Autorise les pop-ups pour imprimer", "t.printNA": "⚠️ Impression non disponible ici"});
+Object.assign(I18N.en,{"shop.default":"My Shop","set.title": "Settings", "set.account": "👤 Account", "set.logout": "Log out", "set.admin": "Admin: customer accounts", "set.adminSub": "Trials, activate, block", "set.lang": "🌐 Language", "set.shop": "🏪 Shop", "set.shopName": "Shop name", "set.addr": "Address", "set.phone": "Phone", "set.email": "Email", "set.logo": "Shop logo", "set.notF": "Not provided", "set.notM": "Not provided", "set.logoAdd": "Tap to add", "set.logoDone": "Logo added ✅", "set.currency": "💰 Currency", "cur.FCFA": "FCFA — CFA franc", "cur.FCFAs": "Cameroon, Central Africa", "cur.XOF": "XOF — CFA franc (UEMOA)", "cur.XOFs": "Senegal, Ivory Coast...", "cur.USD": "USD — US dollar", "cur.EUR": "EUR — Euro", "cur.GNF": "GNF — Guinean franc", "set.receipts": "🧾 Receipts & Invoices", "set.ticket": "58mm thermal ticket", "set.ticketS": "Cashier format", "set.invoice": "Professional A4 invoice", "set.invoiceS": "Business format", "set.thanks": "Thank-you message", "rcpt.thanks": "Thank you for your purchase!", "set.theme": "🎨 Theme", "th.light": "Light", "th.dark": "Dark", "th.violet": "Violet", "set.data": "💾 Data", "set.export": "Export data", "set.exportS": "JSON backup", "set.reset": "Reset", "set.resetS": "Erase all data", "rep.title": "Reports", "rep.sub": "Dashboard", "rep.z": "🧾 Z ticket (end of day)", "rep.bilan": "📊 Summary (week / month / year)", "rep.today": "💰 Sales today", "rep.txn": "Transactions", "rep.avg": "Avg. basket", "rep.margin": "Margin", "rep.stockVal": "📦 Stock value", "rep.prods": "Products", "rep.alerts": "Alerts", "rep.rupt": "Out of stock", "rep.top": "📋 Top sellers", "rep.noSale": "No sales", "rep.sold": "{n} sold", "rep.dluoTtl": "⏰ Best-before alerts", "rep.noDluo": "✅ No best-before alerts", "rep.expired": "EXPIRED", "lg.title": "🖼️ Shop logo", "lg.opt1": "Option 1 — Paste an image URL", "lg.use": "✅ Use this URL", "lg.or": "— or —", "lg.opt2": "Option 2 — Choose from your phone", "lg.pick": "Tap to choose a file", "ed.value": "Value", "btn.print": "🖨️ Print", "btn.printPdf": "🖨️ Print / PDF", "btn.close": "✕ Close", "z.ticket": "58mm ticket", "z.a4": "A4", "b.week": "Week", "b.month": "Month", "b.year": "Year", "z.titleA4": "Z TICKET - END OF DAY", "z.nb": "Number of sales", "z.ca": "Revenue", "z.margin": "Margin", "z.sold": "Products sold", "z.product": "Product", "z.qty": "Qty", "z.none": "No sales today", "z.t": "Z TICKET", "z.nbS": "Sales:", "z.caDay": "Daily revenue", "z.marginC": "Margin:", "z.soldCaps": "PRODUCTS SOLD", "bl.weekOf": "Week of {a} to {b}", "bl.year": "Year {y}", "bl.title": "SUMMARY - {l}", "bl.purchases": "Purchases (stock in)", "bl.stockToday": "Stock value (today)", "bl.gap": "Change vs. previous period", "bl.ca": "Revenue", "bl.top5": "Top 5 products", "bl.new": "▲ new", "au.sub": "Log in or create your account", "au.email": "Email", "au.pw": "Password", "au.pwPh": "6 characters minimum", "au.login": "Log in", "au.signup": "Create my account", "au.forgot": "Forgot password?", "rs.title": "New password", "rs.sub": "Choose a password you will remember", "rs.repeat": "Repeat it", "rs.same": "Same password", "rs.save": "Save password", "au.noNet": "No internet connection", "au.bad": "Incorrect email or password", "au.exists": "This email already has an account. Log in.", "au.confirm": "Please confirm your email first", "au.diff": "Choose a password different from the old one", "au.pw6": "Password: 6 characters minimum", "au.rate": "Too many attempts, try again in a few minutes", "au.err": "Error {s}", "au.fill": "Enter your email and password", "au.logging": "Signing in...", "au.creating": "Creating account...", "au.created": "Account created! Check your email to confirm, then log in.", "au.needEmail": "Enter your email in the box above first", "au.sending": "Sending...", "au.sent": "If this account exists, an email has just been sent. Check your inbox (and spam).", "au.expired": "Link expired. Use \"Forgot password?\" again.", "au.linkExp": "Link expired or already used. Use \"Forgot password?\" again.", "au.session": "Session expired, please log in again", "rs.differ": "The two passwords are different", "rs.saving": "Saving...", "t.pwChanged": "✅ Password changed", "es.left": "⏳ Free trial: {j} day left", "es.leftN": "⏳ Free trial: {j} days left", "bq.susp": "Access suspended", "bq.ended": "Trial ended", "bq.msgSusp": "Your account is suspended. Contact the administrator to reactivate it.", "bq.msgEnd": "Your 14-day free trial has ended. Contact the administrator to activate your account.", "bq.retry": "🔄 I've been activated: try again", "t.restored": "✅ Access restored", "t.stillSusp": "⚠️ Still suspended", "ad.title": "🛡️ Admin: customer accounts", "ad.refresh": "🔄 Refresh", "ad.loading": "Loading...", "ad.fail": "Unable to load the list (offline?)", "ad.count1": "{n} account", "ad.countN": "{n} accounts", "ad.active": "✅ Active", "ad.blocked": "⛔ Blocked", "ad.trial": "⏳ Trial: {j} d", "ad.trialEnd": "⌛ Trial ended", "ad.joined": "joined on", "ad.me": "(your account)", "ad.activate": "Activate", "ad.block": "Block", "ad.plus7": "+7 days", "ad.noEmail": "(no email)", "ad.none": "No accounts", "ad.self": "⚠️ You can't modify your own account here", "ad.confirmBlock": "Block this account?", "ad.refused": "⚠️ Error: change refused", "ad.nothing": "⚠️ Nothing was changed", "ad.updated": "✅ Account updated", "lo.confirm": "Log out?", "lo.legacy": "Data from your old version exists on this phone (shop name, logo...). Import it into this account?", "t.themeChanged": "Theme changed", "t.saved": "✅ {v} saved", "t.urlInvalid": "⚠️ Enter a valid URL", "t.logoSaved": "✅ Logo saved", "t.currency": "✅ Currency: {d}", "t.format": "✅ Format: {f}", "fmt.facture": "A4 invoice", "fmt.ticket": "58mm ticket", "t.exported": "✅ Data exported", "rs.confirm": "⚠️ Reset ALL data? This cannot be undone.", "t.resetDone": "✅ Reset done", "t.popup": "⚠️ Allow pop-ups to print", "t.printNA": "⚠️ Printing not available here"});
+Object.assign(I18N.fr,{"rcpt.print": "🖨️ Imprimer le reçu", "rcpt.invNo": "Facture:", "rcpt.date": "Date:", "rcpt.total": "TOTAL", "rcpt.pay": "Paiement:", "rcpt.invTitle": "FACTURE", "rcpt.no": "N°", "rcpt.desig": "Désignation", "rcpt.qty": "Qté", "rcpt.unit": "Prix unit. ({d})", "rcpt.amount": "Montant ({d})", "rcpt.sub": "Sous-total:", "rcpt.totalC": "TOTAL:", "rcpt.imgErr": "⚠️ Impossible de créer l'image du reçu", "rcpt.saved": "✅ Image enregistrée : ouvre-la avec ton application d'imprimante"});
+Object.assign(I18N.en,{"rcpt.print": "🖨️ Print receipt", "rcpt.invNo": "Invoice:", "rcpt.date": "Date:", "rcpt.total": "TOTAL", "rcpt.pay": "Payment:", "rcpt.invTitle": "INVOICE", "rcpt.no": "No.", "rcpt.desig": "Description", "rcpt.qty": "Qty", "rcpt.unit": "Unit price ({d})", "rcpt.amount": "Amount ({d})", "rcpt.sub": "Subtotal:", "rcpt.totalC": "TOTAL:", "rcpt.imgErr": "⚠️ Could not create the receipt image", "rcpt.saved": "✅ Image saved: open it with your printer app"});
+Object.assign(I18N.fr,{"rcpt.share": "📤 Partager en image", "prn.connecting": "Connexion à l'imprimante…", "prn.preparing": "Préparation du reçu…", "prn.sending": "Envoi du ticket… ne touche à rien", "prn.done": "✅ Ticket envoyé à l'imprimante", "prn.cancel": "Aucune imprimante choisie.", "prn.fail": "⚠️ Connexion impossible. Vérifie que l'imprimante est allumée et que Luck Jingle est fermé, puis réessaie.", "prn.lost": "⚠️ L'imprimante s'est déconnectée. Touche encore « Imprimer le reçu ».", "prn.noBt": "Bluetooth direct indisponible ici : j'ouvre le partage de l'image.", "prn.again": "Reconnexion impossible : touche encore une fois pour choisir l'imprimante."});
+Object.assign(I18N.en,{"rcpt.share": "📤 Share as image", "prn.connecting": "Connecting to the printer…", "prn.preparing": "Preparing the receipt…", "prn.sending": "Sending the ticket… do not touch anything", "prn.done": "✅ Ticket sent to the printer", "prn.cancel": "No printer chosen.", "prn.fail": "⚠️ Could not connect. Check that the printer is on and Luck Jingle is closed, then try again.", "prn.lost": "⚠️ The printer disconnected. Tap \"Print receipt\" again.", "prn.noBt": "Direct Bluetooth is not available here: opening the image share.", "prn.again": "Could not reconnect: tap once more to choose the printer."});
+Object.assign(I18N.fr,{"home.hello": "Bonjour", "home.seeAll": "Tout voir", "home.vsYesterday": "vs hier"});
+Object.assign(I18N.en,{"home.hello": "Hello", "home.seeAll": "See all", "home.vsYesterday": "vs yesterday"});
+function loc(){return LANG==='en'?'en-GB':'fr-FR';}
+function shopName(){const n=(DB&&DB.settings&&DB.settings.shopName)||'';return(!n||n==='Ma Boutique'||n==='My Shop')?t('shop.default'):n;}
+function t(k,a){
+  let x=(I18N[LANG]&&I18N[LANG][k])||I18N.fr[k]||k;
+  if(a)for(const i in a)x=x.split('{'+i+'}').join(a[i]);
+  return x;
+}
+function catn(c){const k='catn.'+c;return I18N.fr[k]?t(k):c;}
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.querySelectorAll('[data-i18n]').forEach(e=>{e.textContent=t(e.getAttribute('data-i18n'));});
+  document.querySelectorAll('[data-i18n-ph]').forEach(e=>{e.placeholder=t(e.getAttribute('data-i18n-ph'));});
+  document.querySelectorAll('[data-i18n-aria]').forEach(e=>{e.setAttribute('aria-label',t(e.getAttribute('data-i18n-aria')));});
+  document.querySelectorAll('.lang-toggle').forEach(e=>{e.textContent=LANG==='fr'?'EN':'FR';});
+  document.querySelectorAll('.lang-seg').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-l')===LANG);});
+  ['fr','en'].forEach(x=>{const el=document.getElementById('chk-lang-'+x);if(el){el.textContent=x===LANG?'✓':'○';el.style.color=x===LANG?'var(--green)':'var(--text3)';}});
+  try{refreshHome();renderProds();renderCart();if(SESSION)appliquerProfil();}catch(e){}
+}
+function setLang(l){
+  if(l!=='fr'&&l!=='en')return;
+  LANG=l;try{localStorage.setItem('homs_lang',l);}catch(e){}
+  applyLang();toast(t('t.langSet'));
+}
+function toggleLang(){setLang(LANG==='fr'?'en':'fr');}
+
+// ══ UTILS ══
+function fmt(n){return Number(n||0).toLocaleString(loc());}
+function fmtD(n){return fmt(n)+' '+getDevise();}
+function gid(){return 'P'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,10).toUpperCase();}
+function eid(){return 'E'+Date.now()+Math.random().toString(36).slice(2,10);}
+function sid(){return 'S'+Date.now()+Math.random().toString(36).slice(2,10);}
+function cat2emoji(c){return{Boissons:'🥤',Alimentaire:'🍱',Hygiène:'🧴',Divers:'📦'}[c]||'📦';}
+function toast(msg,ok=true){const t=document.getElementById('toast');t.textContent=msg;t.style.background=ok?'#22c55e':'#ef4444';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function calcStock(id){
+  const p=DB.products.find(x=>x.id===id);
+  const e=DB.entrees.filter(x=>x.prodId===id).reduce((s,x)=>s+Number(x.qty),0);
+  const s=DB.sorties.filter(x=>x.prodId===id).reduce((s,x)=>s+Number(x.qty),0);
+  return Number(p?.stockInit||0)+e-s;
+}
+function getStatus(p){
+  const s=calcStock(p.id);
+  if(s<=0)return{label:t('status.out'),cls:'s-danger'};
+  if(s<=(p.seuil||5))return{label:t('status.low'),cls:'s-warn'};
+  return{label:t('status.ok'),cls:'s-ok'};
+}
+function payLabel(m){return{cash:'💵 '+t('pay.cash'),momo:'📱 Mobile Money',card:'💳 '+t('pay.card')}[m]||m;}
+
+// ══ NAVIGATION ══
+function nav(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='s-home')refreshHome();
+  if(id==='s-products')renderProds();
+  if(id==='s-reports')renderReports();
+  if(id==='s-caisse')renderCart();
+}
+
+// ══ MODALS ══
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// ══ THÈMES ══
+const THEMES=['light','dark','violet'];
+const THEME_ICO={light:'☀️',dark:'🌙',violet:'💜'};
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t==='light'?'':t);
+  if(t==='light')document.documentElement.removeAttribute('data-theme');
+  DB.settings.theme=t;saveDB();
+  const btn=document.getElementById('theme-btn');if(btn)btn.textContent=THEME_ICO[t];
+  ['light','dark','violet'].forEach(x=>{
+    const el=document.getElementById('chk-'+x);
+    if(el){el.textContent=x===t?'✓':'○';el.style.color=x===t?'var(--green)':'var(--text3)';}
+  });
+}
+function nextTheme(){
+  const cur=DB.settings.theme||'light';
+  const i=THEMES.indexOf(cur);
+  applyTheme(THEMES[(i+1)%THEMES.length]);
+  toast(THEME_ICO[DB.settings.theme]+' '+t('t.themeChanged'));
+}
+
+// ══ HOME ══
+function refreshHome(){
+  const s=DB.settings;
+  const shop=shopName();
+  const d=s.devise||'FCFA';
+  document.getElementById('home-shop').textContent=shop;
+  const lg=document.getElementById('home-logo');if(lg&&!s.logo)lg.textContent=shopInitials(shop);
+  const sn=document.getElementById('set-name');if(sn)sn.textContent=shop;
+  const sa=document.getElementById('set-addr');if(sa)sa.textContent=s.addr||t('set.notF');
+  const sp=document.getElementById('set-phone');if(sp)sp.textContent=s.phone||t('set.notM');
+  const se=document.getElementById('set-email');if(se)se.textContent=s.email||t('set.notM');
+  const sm=document.getElementById('set-msg');if(sm)sm.textContent=s.msgRecu||t('rcpt.thanks');
+  const sl=document.getElementById('set-logo-lbl');if(sl)sl.textContent=s.logo?t('set.logoDone'):t('set.logoAdd');
+  const kpiD=document.getElementById('kpi-devise');if(kpiD)kpiD.textContent=d;
+  document.querySelectorAll('.lbl-devise').forEach(el=>el.textContent=d);
+
+  // Logo
+  const lp=document.getElementById('home-logo');
+  const lp2=document.getElementById('logo-prev');
+  if(s.logo){
+    if(lp)lp.innerHTML=`<img src="${s.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`;
+    if(lp2)lp2.innerHTML=`<img src="${s.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:9px">`;
+  }
+
+  // Devise
+  ['FCFA','XOF','USD','EUR','GNF'].forEach(x=>{
+    const el=document.getElementById('chk-'+x);
+    if(el){el.textContent=x===(s.devise||'FCFA')?'✓':'○';el.style.color=x===(s.devise||'FCFA')?'var(--green)':'var(--text3)';}
+  });
+
+  // Format reçu
+  ['ticket','facture'].forEach(x=>{
+    const el=document.getElementById('chk-'+x);
+    if(el){el.textContent=x===(s.recuFmt||'ticket')?'✓':'○';el.style.color=x===(s.recuFmt||'ticket')?'var(--green)':'var(--text3)';}
+  });
+
+  // KPIs
+  const today=new Date().toDateString();
+  const todayS=DB.sorties.filter(x=>new Date(x.date).toDateString()===today);
+  const ca=todayS.reduce((n,x)=>n+Number(x.total||0),0);
+  const nbV=new Set(todayS.map(x=>x.facture)).size;
+  setTxt('kpi-sales',fmt(ca));
+  setTxt('kpi-sales-sub',nbV?t(nbV>1?'home.saleN':'home.sale1',{n:nbV}):t('home.noSale'));
+  const enStock=DB.products.filter(p=>calcStock(p.id)>0).length;
+  const alerts=DB.products.filter(p=>{const q=calcStock(p.id);return q>0&&q<=(p.seuil||5);}).length;
+  const rupts=DB.products.filter(p=>calcStock(p.id)<=0).length;
+  const dluo=DB.products.filter(p=>{if(!p.dluo)return false;return(new Date(p.dluo)-new Date())/86400000<=30;}).length;
+  setKpi('kpi-items',enStock,'');
+  setKpi('kpi-alerts',alerts+rupts,'var(--amber)');
+  setKpi('kpi-dluo',dluo,'var(--red)');
+
+  // Pour bien démarrer (1 = compte, déjà fait)
+  const hasP=DB.products.length>0,hasS=DB.sorties.length>0;
+  const done=1+(hasP?1:0)+(hasS?1:0);
+  const st=document.getElementById('home-start');
+  if(st){
+    st.style.display=done>=3?'none':'';
+    setTxt('start-count',t('home.startCount',{n:done}));
+    const fl=document.getElementById('start-fill');if(fl)fl.style.width=Math.round(done*100/3)+'%';
+    const nx=document.getElementById('start-next-txt'),nk=hasP?'home.s3':'home.s2';
+    if(nx){nx.setAttribute('data-i18n',nk);nx.textContent=t(nk);}
+  }
+  // variation par rapport à hier + courbe des 7 derniers jours
+  const nowD=new Date(),yst=new Date(nowD.getFullYear(),nowD.getMonth(),nowD.getDate()-1).toDateString();
+  const ysum=DB.sorties.filter(x=>new Date(x.date).toDateString()===yst).reduce((n,x)=>n+Number(x.total||0),0);
+  const chip=document.getElementById('kpi-delta');
+  if(chip){
+    if(ysum>0){const pc=Math.round((ca-ysum)*100/ysum);chip.textContent=(pc>=0?'+':'−')+Math.abs(pc)+' % '+t('home.vsYesterday');chip.className='h2-chip'+(pc<0?' neg':'');chip.style.display='';}
+    else chip.style.display='none';
+  }
+  homeSpark();
+
+  // Alertes
+  const al=[
+    ...DB.products.filter(p=>calcStock(p.id)<=0).map(p=>({name:p.name,msg:t('alert.out'),col:'#ef4444'})),
+    ...DB.products.filter(p=>{const q=calcStock(p.id);return q>0&&q<=(p.seuil||5);}).map(p=>({name:p.name,msg:t('alert.low',{n:calcStock(p.id)}),col:'#f59e0b'})),
+    ...DB.products.filter(p=>{if(!p.dluo)return false;return(new Date(p.dluo)-new Date())/86400000<=30;}).map(p=>({name:p.name,msg:t('alert.dluo',{d:p.dluo}),col:'#a78bfa'}))
+  ];
+  const asec=document.getElementById('home-alerts-sec');
+  if(asec)asec.style.display=al.length?'':'none';
+  const dot=document.getElementById('notif-dot');
+  if(dot)dot.style.display=al.length?'block':'none';
+  const ah=document.getElementById('home-alerts');
+  if(ah)ah.innerHTML=al.slice(0,4).map(a=>`
+    <div class="alert-card"><div class="alert-dot" style="background:${a.col}"></div><div><div class="alert-name">${escH(a.name)}</div><div class="alert-msg">${escH(a.msg)}</div></div></div>`).join('');
+}
+function shopInitials(n){
+  const w=String(n||'').trim().split(/\s+/).filter(Boolean);
+  if(!w.length)return 'HS';
+  return (w.length>1?w[0][0]+w[1][0]:w[0].slice(0,2)).toUpperCase();
+}
+function homeSpark(){
+  const el=document.getElementById('spark');if(!el)return;
+  const now=new Date(),days=[];
+  for(let i=6;i>=0;i--){days.push({k:new Date(now.getFullYear(),now.getMonth(),now.getDate()-i).toDateString(),v:0});}
+  DB.sorties.forEach(x=>{const k=new Date(x.date).toDateString();for(let j=0;j<7;j++)if(days[j].k===k)days[j].v+=Number(x.total||0);});
+  const mx=Math.max.apply(null,days.map(d=>d.v));
+  el.style.display=mx>0?'block':'none';
+  const line='M'+days.map((d,j)=>Math.round(j*300/6)+' '+(mx>0?Math.round(60-(d.v/mx)*52):62)).join(' L');
+  el.innerHTML='<path d="'+line+' L300 70 L0 70 Z" fill="rgba(200,241,105,'+(mx>0?'.12':'.04')+')"/><path d="'+line+'" fill="none" stroke="'+(mx>0?'#C8F169':'rgba(255,255,255,.25)')+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>';
+}
+function homeNext(){
+  if(!DB.products.length){openProdModal();return;}
+  if(!DB.sorties.length)nav('s-caisse');
+}
+function setTxt(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+function setKpi(id,n,col){const e=document.getElementById(id);if(!e)return;e.textContent=n;e.style.color=n>0?col:'';}
+function homeBell(){
+  const sec=document.getElementById('home-alerts-sec');
+  if(sec&&sec.style.display!=='none'){sec.scrollIntoView({behavior:'smooth',block:'start'});}
+  else toast(t('home.noAlert'));
+}
+function homeStep(n){
+  if(n===2){if(!DB.products.length)openProdModal();return;}
+  if(!DB.products.length){toast(t('t.addFirst'),false);return;}
+  if(!DB.sorties.length)nav('s-caisse');
+}
+
+// ══ PRODUITS ══
+let curCat='Tous';
+function setCat(el,cat){
+  curCat=cat;
+  document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  renderProds();
+}
+function nextCat(){
+  const cats=['Tous','Boissons','Alimentaire','Hygiène','Divers'];
+  const i=cats.indexOf(curCat);
+  const next=cats[(i+1)%cats.length];
+  const el=document.querySelector(`[data-cat="${next}"]`);
+  if(el)setCat(el,next);
+}
+
+function renderProds(){
+  const q=(document.getElementById('prod-search')?.value||'').toLowerCase();
+  let list=DB.products.filter(p=>curCat==='Tous'||p.cat===curCat);
+  if(q)list=list.filter(p=>p.name.toLowerCase().includes(q)||p.id.toLowerCase().includes(q));
+
+  const ok=DB.products.filter(p=>{const s=calcStock(p.id);return s>(p.seuil||5);}).length;
+  const warn=DB.products.filter(p=>{const s=calcStock(p.id);return s>0&&s<=(p.seuil||5);}).length;
+  const rupt=DB.products.filter(p=>calcStock(p.id)<=0).length;
+  document.getElementById('cnt-ok').textContent=ok;
+  document.getElementById('cnt-warn').textContent=warn;
+  document.getElementById('cnt-rupt').textContent=rupt;
+  document.getElementById('prod-hdr-sub').textContent=t('prod.count',{n:DB.products.length});
+
+  const el=document.getElementById('prod-list');
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-ico">📦</div><p>${t('prod.none')}</p><button class="btn-p" style="margin-top:12px;width:auto;padding:10px 24px" onclick="openProdModal()">${t('prod.addBtn')}</button></div>`;return;}
+  el.innerHTML=list.map(p=>{
+    const stk=calcStock(p.id);const st=getStatus(p);
+    return`<div class="prod-card" onclick="openDetail('${p.id}')">
+      <div class="prod-emoji">${cat2emoji(p.cat)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-cat">${catn(p.cat)} · ${p.id}</div>
+        <div class="prod-px"><span class="p-buy">${t('prod.buy',{v:fmt(p.achat)})}</span><span class="p-sell">${fmt(p.vente)} ${getDevise()}</span></div>
+        ${p.dluo?`<div class="dluo-warn">${t('prod.dluoLine',{d:p.dluo})}</div>`:''}
+      </div>
+      <div class="prod-right">
+        <span class="sbadge ${st.cls}">${st.label}</span>
+        <div><div class="s-qty">${stk}</div><div class="s-unit">${t('prod.units')}</div></div>
+      </div>
+    </div>`;}).join('');
+}
+
+function openProdModal(id){
+  document.getElementById('f-name').value='';
+  document.getElementById('f-cat').value='Boissons';
+  document.getElementById('f-achat').value='';
+  document.getElementById('f-vente').value='';
+  document.getElementById('f-stock').value='';
+  document.getElementById('f-seuil').value='5';
+  document.getElementById('f-barcode').value='';
+  document.getElementById('f-id').value='';
+  if(id){
+    const p=DB.products.find(x=>x.id===id);
+    if(p){
+      document.getElementById('m-prod-ttl').textContent=t('m.editProd');
+      document.getElementById('f-name').value=p.name;
+      document.getElementById('f-cat').value=p.cat;
+      document.getElementById('f-achat').value=p.achat;
+      document.getElementById('f-vente').value=p.vente;
+      document.getElementById('f-stock').value=p.stockInit||0;
+      document.getElementById('f-seuil').value=p.seuil||5;
+      document.getElementById('f-barcode').value=p.barcode||'';
+      document.getElementById('f-id').value=id;
+    }
+  } else {
+    document.getElementById('m-prod-ttl').textContent=t('m.newProd');
+  }
+  openModal('m-prod');
+}
+
+async function saveProd(){
+  const name=document.getElementById('f-name').value.trim();
+  const vente=document.getElementById('f-vente').value;
+  if(!name){toast(t('t.nameReq'),false);return;}
+  if(!vente){toast(t('t.priceReq'),false);return;}
+  const editId=document.getElementById('f-id').value;
+  const prod={
+    id:editId||gid(),name,cat:document.getElementById('f-cat').value,
+    achat:Number(document.getElementById('f-achat').value)||0,
+    vente:Number(vente),stockInit:Number(document.getElementById('f-stock').value)||0,
+    seuil:Number(document.getElementById('f-seuil').value)||5,
+    barcode:document.getElementById('f-barcode').value,dluo:''
+  };
+  if(editId){const i=DB.products.findIndex(p=>p.id===editId);if(i>=0)DB.products[i]=prod;}
+  else DB.products.push(prod);
+  saveDB();closeModal('m-prod');renderProds();refreshHome();
+  toast(t('t.saving'));
+  const data={id:prod.id,name:prod.name,cat:prod.cat,achat:prod.achat,vente:prod.vente,stock_init:prod.stockInit,seuil:prod.seuil,dluo:null,barcode:prod.barcode||null};
+  const ok=await sbReq('produits',editId?'PATCH':'POST',data,editId?`?id=eq.${editId}`:'');
+  toast(ok!==null?t('t.prodSaved'):t('t.localOnly'),ok!==null);
+}
+
+function openDetail(id){
+  const p=DB.products.find(x=>x.id===id);if(!p)return;
+  const stk=calcStock(id);const st=getStatus(p);
+  const marge=p.achat>0?Math.round(((p.vente-p.achat)/p.vente)*100):0;
+  document.getElementById('detail-id').textContent=p.id;
+  document.getElementById('detail-body').innerHTML=`
+    <div class="detail-hero">
+      <div class="detail-emoji">${cat2emoji(p.cat)}</div>
+      <div class="detail-name">${p.name}</div>
+      <div class="detail-id">${p.id} · ${catn(p.cat)}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-ttl">${t('d.stock')}</div>
+      <div class="info-row"><span class="info-k">${t('d.cur')}</span><span class="info-v">${stk} ${t('prod.units')}</span></div>
+      <div class="info-row"><span class="info-k">${t('d.thr')}</span><span class="info-v">${p.seuil||5} ${t('prod.units')}</span></div>
+      <div class="info-row"><span class="info-k">${t('d.status')}</span><span class="sbadge ${st.cls}">${st.label}</span></div>
+      ${p.dluo?`<div class="info-row"><span class="info-k">${t('d.dluo')}</span><span class="info-v" style="color:var(--red)">${p.dluo}</span></div>`:''}
+    </div>
+    <div class="info-card">
+      <div class="info-ttl">${t('d.prices')}</div>
+      <div class="info-row"><span class="info-k">${t('d.buyp')}</span><span class="info-v">${fmt(p.achat)} ${getDevise()}</span></div>
+      <div class="info-row"><span class="info-k">${t('d.sellp')}</span><span class="info-v">${fmt(p.vente)} ${getDevise()}</span></div>
+      <div class="info-row"><span class="info-k">${t('d.margin')}</span><span class="info-v">${marge}%</span></div>
+      <div class="info-row"><span class="info-k">${t('d.value')}</span><span class="info-v">${fmt(p.achat*stk)} ${getDevise()}</span></div>
+    </div>
+    <div class="act-btns">
+      <button class="act-btn act-edit" onclick="openProdModal('${id}')">${t('d.edit')}</button>
+      <button class="act-btn act-del" onclick="deleteProd('${id}')">${t('d.del')}</button>
+    </div>
+    <div style="padding:0 16px">
+      <button class="btn-p" onclick="addToCart('${id}');nav('s-caisse')">${t('d.sell')}</button>
+      <button class="btn-s" style="margin-top:8px" onclick="openEntreeForProd('${id}')">${t('d.entry')}</button>
+    </div>`;
+  nav('s-detail');
+}
+
+async function deleteProd(id){
+  if(!confirm(t('d.confirmDel')))return;
+  DB.products=DB.products.filter(p=>p.id!==id);
+  DB.entrees=DB.entrees.filter(e=>e.prodId!==id);
+  DB.sorties=DB.sorties.filter(s=>s.prodId!==id);
+  saveDB();nav('s-products');
+  toast(t('t.deleting'));
+  await sbReq('produits','DELETE',null,`?id=eq.${id}`);
+  toast(t('t.prodDeleted'));
+}
+
+// ══ ENTRÉES ══
+function openEntreeModal(){
+  if(!DB.products.length){toast(t('t.addFirst'),false);return;}
+  document.getElementById('e-prod').innerHTML=DB.products.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  document.getElementById('e-qty').value='';
+  document.getElementById('e-prix').value='';
+  document.getElementById('e-fournisseur').value='';
+  document.getElementById('e-lot').value='';
+  document.getElementById('e-dluo').value='';
+  openModal('m-entree');
+}
+function openEntreeForProd(id){openEntreeModal();document.getElementById('e-prod').value=id;}
+
+async function saveEntree(){
+  const prodId=document.getElementById('e-prod').value;
+  const qty=Number(document.getElementById('e-qty').value);
+  if(!prodId||!qty){toast(t('t.entReq'),false);return;}
+  const dluo=document.getElementById('e-dluo').value;
+  const entree={id:eid(),date:new Date().toISOString(),prodId,qty,
+    prix:Number(document.getElementById('e-prix').value)||0,
+    fournisseur:document.getElementById('e-fournisseur').value,
+    lot:document.getElementById('e-lot').value,dluo};
+  // Mettre à jour DLUO du produit si renseignée
+  if(dluo){const p=DB.products.find(x=>x.id===prodId);if(p)p.dluo=dluo;}
+  DB.entrees.push(entree);saveDB();closeModal('m-entree');renderProds();refreshHome();
+  toast(t('t.recording'));
+  const ok=await sbReq('entrees','POST',{id:entree.id,prod_id:prodId,qty,prix:entree.prix,fournisseur:entree.fournisseur||null,lot:entree.lot||null,dluo:dluo||null});
+  toast(ok!==null?t('t.entSaved'):t('t.localOnly'),ok!==null);
+}
+
+// ══ CAISSE ══
+let cart=[];let payMode='cash';
+function setPay(m){
+  payMode=m;
+  ['cash','momo','card'].forEach(x=>document.getElementById('pay-'+x).classList.toggle('on',x===m));
+}
+function renderCaisseSearch(){
+  const q=document.getElementById('caisse-search').value.toLowerCase();
+  const el=document.getElementById('caisse-results');
+  if(!q){el.innerHTML='';return;}
+  const list=DB.products.filter(p=>(p.name.toLowerCase().includes(q)||String(p.barcode||'').toLowerCase().includes(q))&&calcStock(p.id)>0);
+  if(!list.length){el.innerHTML='<div style="padding:12px;color:var(--text2);font-size:13px">Aucun résultat</div>';return;}
+  el.innerHTML=list.slice(0,5).map(p=>`
+    <div class="prod-card" style="margin:4px 0" onclick="addToCart('${p.id}')">
+      <div class="prod-emoji" style="width:38px;height:38px;font-size:18px">${cat2emoji(p.cat)}</div>
+      <div style="flex:1;min-width:0"><div class="prod-name">${p.name}</div><div class="prod-cat">Stock: ${calcStock(p.id)} · ${fmt(p.vente)} ${getDevise()}</div></div>
+      <div style="color:var(--accent);font-size:24px;padding-right:4px;font-weight:700">＋</div>
+    </div>`).join('');
+}
+function addToCart(id){
+  const p=DB.products.find(x=>x.id===id);if(!p)return;
+  const ex=cart.find(c=>c.id===id);
+  if(ex)ex.qty++;else cart.push({id,name:p.name,prix:p.vente,qty:1});
+  document.getElementById('caisse-search').value='';
+  document.getElementById('caisse-results').innerHTML='';
+  renderCart();toast(t('t.added',{n:p.name}));
+}
+function changeQty(id,d){
+  const item=cart.find(c=>c.id===id);if(!item)return;
+  item.qty+=d;if(item.qty<=0)cart=cart.filter(c=>c.id!==id);
+  renderCart();
+}
+function clearCart(){cart=[];renderCart();}
+function renderCaisseGrid(){
+  const el=document.getElementById('caisse-grid');
+  if(!el||!DB||!DB.products)return;
+  const qEl=document.getElementById('caisse-search');
+  const q=((qEl&&qEl.value)||'').trim().toLowerCase();
+  const d=getDevise();
+  if(!DB.products.length){el.innerHTML='<div class="cg-empty">'+t('c.empty')+'</div>';return;}
+  const list=DB.products.filter(p=>!q||String(p.name).toLowerCase().includes(q)||String(p.barcode||'').toLowerCase().includes(q));
+  if(!list.length){el.innerHTML='<div class="cg-empty">'+t('c.noRes')+'</div>';return;}
+  el.innerHTML=list.map(p=>{
+    const st=calcStock(p.id),inCart=cart.find(c=>c.id===p.id),n=inCart?inCart.qty:0,out=st<=0;
+    return '<button class="ptile'+(n?' sel':'')+(out?' out':'')+'"'+(out?' disabled':'')+' onclick="addToCart(\''+escH(p.id)+'\')">'
+      +(n?'<span class="ptile-badge">'+n+'</span>':'')
+      +'<span class="ptile-name">'+escH(p.name)+'</span>'
+      +'<span class="ptile-price">'+fmt(p.vente)+' '+d+'</span>'
+      +'<span class="ptile-stock">'+(out?t('c.rupt'):t('c.stock',{n:st}))+'</span></button>';
+  }).join('');
+}
+function renderCart(){
+  const total=cart.reduce((s,c)=>s+c.prix*c.qty,0);
+  const d=getDevise();
+  renderCaisseGrid();
+  const be=document.getElementById('btn-encaisser');
+  if(be){be.disabled=!cart.length;be.textContent=cart.length?t('c.pay')+' '+fmt(total)+' '+d:t('c.pay');}
+  document.getElementById('cart-total').textContent=fmt(total)+' '+d;
+  document.getElementById('cart-hdr').textContent=t('c.count',{n:cart.length});
+  const el=document.getElementById('cart-items');
+  if(!cart.length){el.innerHTML='<div style="padding:10px;text-align:center;color:var(--text2);font-size:13px">'+t('c.hint')+'</div>';return;}
+  el.innerHTML=cart.map(c=>`
+    <div class="cart-item">
+      <div style="flex:1"><div class="cart-name">${c.name}</div><div class="cart-sub">${fmt(c.prix)} ${d} × ${c.qty}</div></div>
+      <div class="qty-ctrl">
+        <div class="qty-btn" onclick="changeQty('${c.id}',-1)">−</div>
+        <div class="qty-val">${c.qty}</div>
+        <div class="qty-btn" onclick="changeQty('${c.id}',1)">＋</div>
+      </div>
+      <div class="cart-amt">${fmt(c.prix*c.qty)} ${d}</div>
+    </div>`).join('');
+}
+
+async function confirmSale(){
+  if(!cart.length){toast(t('t.cartEmpty'),false);return;}
+  const nFact='F'+Date.now();
+  const total=cart.reduce((s,c)=>s+c.prix*c.qty,0);
+  const saleCart=[...cart];
+  saleCart.forEach(c=>{
+    DB.sorties.push({id:sid(),date:new Date().toISOString(),prodId:c.id,qty:c.qty,prix:c.prix,total:c.prix*c.qty,mode:payMode,facture:nFact});
+  });
+  saveDB();clearCart();refreshHome();
+  showRecu(nFact,saleCart,total);
+  // Cloud async
+  saleCart.forEach(async c=>{
+    await sbReq('sorties','POST',{id:sid(),prod_id:c.id,qty:c.qty,prix:c.prix,total:c.prix*c.qty,mode:payMode,facture:nFact});
+  });
+}
+
+// ══ REÇUS ══
+let lastSale=null;
+function showRecu(nFact,items,total){
+  lastSale={nFact,items,total,mode:payMode,date:new Date()};
+  const pm=document.getElementById('prn-msg');if(pm)pm.textContent='';
+  buildRecu();openModal('m-recu');
+}
+function buildRecu(){
+  const r=lastSale;if(!r)return;
+  const shop=shopName();
+  const devise=getDevise();
+  const msgRecu=DB.settings.msgRecu||t('rcpt.thanks');
+  const logo=DB.settings.logo?`<img src="${DB.settings.logo}" style="max-width:80px;max-height:55px;display:block;margin:0 auto 4px">`:'<div style="font-size:28px;text-align:center">📦</div>';
+  const addr=DB.settings.addr||'';
+  const phone=DB.settings.phone||'';
+  const email=DB.settings.email||'';
+  const info=[addr,phone,email].filter(Boolean);
+  const dateStr=r.date.toLocaleDateString(loc())+' '+r.date.toLocaleTimeString(loc(),{hour:'2-digit',minute:'2-digit'});
+
+  if(DB.settings.recuFmt==='facture'){
+    const rows=r.items.map(c=>`<tr><td>${c.name}</td><td style="text-align:center">${c.qty}</td><td style="text-align:right">${fmt(c.prix)} ${devise}</td><td style="text-align:right"><b>${fmt(c.prix*c.qty)} ${devise}</b></td></tr>`).join('');
+    document.getElementById('recu-content').innerHTML=`<div class="facture">
+      <div class="f-hdr">
+        <div>${logo}<div class="f-shop">${shop}</div>${info.map(i=>`<div class="f-info">${i}</div>`).join('')}</div>
+        <div class="f-num" style="text-align:right"><h3>${t('rcpt.invTitle')}</h3><div style="font-size:12px;color:#666">${t('rcpt.no')} ${r.nFact}</div><div style="font-size:11px;color:#666;margin-top:3px">${dateStr}</div><div style="margin-top:6px;font-size:11px;background:#185FA5;color:#fff;padding:3px 8px;border-radius:5px;display:inline-block">${payLabel(r.mode)}</div></div>
+      </div>
+      <table class="f-tbl"><thead><tr><th>${t('rcpt.desig')}</th><th style="text-align:center">${t('rcpt.qty')}</th><th style="text-align:right">${t('rcpt.unit',{d:devise})}</th><th style="text-align:right">${t('rcpt.amount',{d:devise})}</th></tr></thead><tbody>${rows}</tbody></table>
+      <div style="text-align:right;margin-top:8px"><div style="font-size:13px;color:#666">${t('rcpt.sub')} ${fmt(r.total)} ${devise}</div><div style="font-size:18px;font-weight:700;color:#185FA5">${t('rcpt.totalC')} ${fmt(r.total)} ${devise}</div></div>
+      <div class="f-foot">${msgRecu}<br><b>${shop}</b> · HOMS-STOCK Manager · Homslo/Vision</div>
+    </div>`;
+  } else {
+    const lines=r.items.map(c=>`<div class="trow"><span>${c.name} ×${c.qty}</span><span>${fmt(c.prix*c.qty)} ${devise}</span></div>`).join('');
+    document.getElementById('recu-content').innerHTML=`<div class="ticket">
+      <div class="tc">${logo}</div>
+      <div class="tc" style="font-weight:700;font-size:14px">${shop}</div>
+      ${info.map(i=>`<div class="tc" style="font-size:11px">${i}</div>`).join('')}
+      <hr class="tdiv">
+      <div class="trow"><span>${t('rcpt.invNo')}</span><span>${r.nFact}</span></div>
+      <div class="trow"><span>${t('rcpt.date')}</span><span>${dateStr}</span></div>
+      <hr class="tdiv">
+      ${lines}
+      <hr class="tdiv">
+      <div class="trow" style="font-weight:700;font-size:14px"><span>${t('rcpt.total')}</span><span>${fmt(r.total)} ${devise}</span></div>
+      <div class="trow" style="margin-top:4px"><span>${t('rcpt.pay')}</span><span>${payLabel(r.mode)}</span></div>
+      <hr class="tdiv">
+      <div class="tc" style="font-size:11px;margin-top:6px">${msgRecu}</div>
+      <div class="tc" style="font-size:10px">Powered by HOMS-STOCK · Homslo/Vision</div>
+    </div>`;
+  }
+}
+// ══ REÇU EN IMAGE (pour l'appli de l'imprimante) ══
+function loadImg(src){
+  return new Promise(function(res){
+    var im=new Image();
+    if(/^https?:/i.test(src))im.crossOrigin='anonymous';
+    im.onload=function(){res(im);};im.onerror=function(){res(null);};
+    setTimeout(function(){res(null);},3000);
+    im.src=src;
+  });
+}
+function wrapText(ctx,text,maxW){
+  var out=[],words=String(text).split(/\s+/),line='';
+  for(var i=0;i<words.length;i++){
+    var w=words[i],test=line?line+' '+w:w;
+    if(ctx.measureText(test).width<=maxW){line=test;continue;}
+    if(line)out.push(line);
+    while(ctx.measureText(w).width>maxW){var k=w.length;while(k>1&&ctx.measureText(w.slice(0,k)).width>maxW)k--;out.push(w.slice(0,k));w=w.slice(k);}
+    line=w;
+  }
+  if(line)out.push(line);
+  return out.length?out:[''];
+}
+function payPlain(m){return{cash:t('pay.cash'),momo:'Mobile Money',card:t('pay.card')}[m]||m;}
+async function receiptDraw(){
+  var r=lastSale;if(!r)return null;
+  var S=2,W=384,M=12,CW=W-2*M,F='Arial, Helvetica, sans-serif';
+  var d=getDevise(),shop=shopName(),st=DB.settings;
+  var info=[st.addr,st.phone,st.email].filter(Boolean);
+  var dateStr=r.date.toLocaleDateString(loc())+' '+r.date.toLocaleTimeString(loc(),{hour:'2-digit',minute:'2-digit'});
+  var logo=st.logo?await loadImg(st.logo):null;
+  function layout(ctx,draw){
+    var y=10;
+    function line(txt,font,lh,align,x0,w0){
+      ctx.font=font;var ls=wrapText(ctx,txt,w0||CW);
+      for(var i=0;i<ls.length;i++){
+        if(draw){ctx.textAlign=align;ctx.fillText(ls[i],align==='center'?W/2:align==='right'?M+CW:M,y);}
+        y+=lh;
+      }
+    }
+    function dash(){y+=3;if(draw){ctx.setLineDash([4,3]);ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(M,y);ctx.lineTo(W-M,y);ctx.stroke();ctx.setLineDash([]);}y+=9;}
+    function pair(left,right,font,lh){
+      ctx.font=font;
+      var lw=ctx.measureText(left).width,rw=ctx.measureText(right).width;
+      if(lw+rw+8<=CW){if(draw){ctx.textAlign='left';ctx.fillText(left,M,y);ctx.textAlign='right';ctx.fillText(right,M+CW,y);}y+=lh;}
+      else{line(left,font,lh,'left');line(right,font,lh,'right');}
+    }
+    if(logo){
+      var lw=logo.width,lh=logo.height,k=Math.min(150/lw,64/lh,1);lw*=k;lh*=k;
+      if(draw)ctx.drawImage(logo,(W-lw)/2,y,lw,lh);
+      y+=lh+8;
+    }
+    line(shop,'bold 24px '+F,29,'center');
+    for(var i=0;i<info.length;i++)line(info[i],'14px '+F,18,'center');
+    dash();
+    line(t('rcpt.invNo')+' '+r.nFact,'15px '+F,20,'left');
+    line(t('rcpt.date')+' '+dateStr,'15px '+F,20,'left');
+    dash();
+    for(var j=0;j<r.items.length;j++){
+      var c=r.items[j];
+      line(c.name,'bold 17px '+F,21,'left');
+      pair(c.qty+' x '+fmt(c.prix),fmt(c.prix*c.qty)+' '+d,'16px '+F,23);
+      y+=4;
+    }
+    dash();
+    pair(t('rcpt.total'),fmt(r.total)+' '+d,'bold 24px '+F,30);
+    y+=2;
+    line(t('rcpt.pay')+' '+payPlain(r.mode),'16px '+F,21,'left');
+    dash();
+    line(st.msgRecu||t('rcpt.thanks'),'15px '+F,20,'center');
+    y+=4;
+    line('Powered by HOMS-STOCK · Homslo/Vision','11px '+F,14,'center');
+    return y+26;
+  }
+  var mc=document.createElement('canvas').getContext('2d');
+  mc.textBaseline='top';
+  var H=Math.ceil(layout(mc,false));
+  var cv=document.createElement('canvas');cv.width=W*S;cv.height=H*S;
+  var ctx=cv.getContext('2d');
+  ctx.scale(S,S);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#000';ctx.strokeStyle='#000';ctx.textBaseline='top';
+  layout(ctx,true);
+  return {cv:cv,ctx:ctx,H:H};
+}
+async function receiptImageBlob(){
+  var d=await receiptDraw();if(!d)return null;
+  // noir et blanc pur : une imprimante thermique n'imprime pas de gris
+  var im=d.ctx.getImageData(0,0,d.cv.width,d.cv.height),px=im.data;
+  for(var q=0;q<px.length;q+=4){var v=(0.299*px[q]+0.587*px[q+1]+0.114*px[q+2])<170?0:255;px[q]=px[q+1]=px[q+2]=v;px[q+3]=255;}
+  d.ctx.putImageData(im,0,0);
+  return await new Promise(function(res){d.cv.toBlob(function(b){res(b);},'image/png');});
+}
+async function shareReceiptImage(){
+  if(!lastSale)return;
+  var blob=null;
+  try{blob=await receiptImageBlob();}catch(e){console.error(e);}
+  if(!blob){toast(t('rcpt.imgErr'),false);return;}
+  var name='recu-'+lastSale.nFact+'.png',file=null;
+  try{file=new File([blob],name,{type:'image/png'});}catch(e){}
+  if(file&&navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:shopName()});return;}
+    catch(e){if(e&&e.name==='AbortError')return;}
+  }
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},4000);
+  toast(t('rcpt.saved'));
+}
+
+// ══ IMPRESSION DIRECTE EN BLUETOOTH (imprimante Luck Jingle PPS1…) ══
+let PRN={dev:null,ch:null,busy:false};
+let PRN_CHUNK=200,PRN_DELAY=50;
+function prnSleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+function prnMsg(txt,kind){
+  var el=document.getElementById('prn-msg');if(!el)return;
+  el.textContent=txt||'';el.style.color=kind==='ok'?'#15803D':kind==='bad'?'#dc2626':'#555';
+}
+function prnBusy(on){
+  PRN.busy=on;
+  var b=document.getElementById('btn-recu-img');if(!b)return;
+  b.disabled=on;b.style.opacity=on?'.6':'1';
+}
+async function prnConnect(dev){
+  var lastErr=null;
+  for(var i=0;i<2;i++){
+    try{
+      var sv=await dev.gatt.connect();
+      var svc=await sv.getPrimaryService(0xff00);
+      return await svc.getCharacteristic(0xff02);
+    }catch(e){lastErr=e;try{dev.gatt.disconnect();}catch(x){}await prnSleep(600);}
+  }
+  throw lastErr;
+}
+async function prnGetChannel(){
+  if(PRN.ch&&PRN.dev&&PRN.dev.gatt.connected)return PRN.ch;
+  PRN.ch=null;
+  if(PRN.dev){                     // déjà choisie plus tôt : on se reconnecte sans fenêtre de choix
+    try{PRN.ch=await prnConnect(PRN.dev);return PRN.ch;}
+    catch(e){PRN.dev=null;var er=new Error('reconnect');er.name='ReconnectError';throw er;}
+  }
+  var dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'PPS1'}],optionalServices:[0xff00]});
+  dev.addEventListener('gattserverdisconnected',function(){PRN.ch=null;});
+  PRN.dev=dev;
+  PRN.ch=await prnConnect(dev);
+  return PRN.ch;
+}
+async function receiptRaster(){
+  var d=await receiptDraw();if(!d)return null;
+  var W=384,H=d.H,bpr=W/8;
+  var out=document.createElement('canvas');out.width=W;out.height=H;
+  var c=out.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,W,H);
+  c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(d.cv,0,0,W,H);
+  var px=c.getImageData(0,0,W,H).data,data=new Uint8Array(bpr*H);
+  for(var y=0;y<H;y++)for(var x=0;x<W;x++){
+    var k=(y*W+x)*4,lum=0.299*px[k]+0.587*px[k+1]+0.114*px[k+2];
+    if(lum<165)data[y*bpr+(x>>3)]|=(0x80>>(x&7));
+  }
+  return {head:new Uint8Array([0x1d,0x76,0x30,0x00,bpr&255,bpr>>8,H&255,H>>8]),data:data,rows:H};
+}
+async function prnSend(ch,rs){
+  async function w(bytes,pause,prog){
+    for(var i=0;i<bytes.length;i+=PRN_CHUNK){
+      var part=bytes.slice(i,i+PRN_CHUNK);
+      if(ch.writeValueWithoutResponse)await ch.writeValueWithoutResponse(part);else await ch.writeValue(part);
+      if(prog)prnMsg(t('prn.sending')+' '+Math.min(100,Math.round((i+part.length)*100/bytes.length))+' %');
+      await prnSleep(PRN_DELAY);
+    }
+    if(pause)await prnSleep(pause);
+  }
+  var img=new Uint8Array(rs.head.length+rs.data.length);img.set(rs.head,0);img.set(rs.data,rs.head.length);
+  await w(new Uint8Array([0x10,0xFF,0xF1,0x03]),80);          // activer l'imprimante
+  await w(new Uint8Array(12),80);                              // réveil
+  await w(new Uint8Array([0x10,0xFF,0x10,0x00,0x01]),80);      // densité normale
+  await w(img,150,true);                                       // l'image du reçu
+  await w(new Uint8Array([0x1B,0x4A,0x50]),80);                // faire avancer le papier
+  await w(new Uint8Array([0x10,0xFF,0xF1,0x45]),0);            // fin du travail
+}
+async function printReceiptDirect(){
+  if(!lastSale||PRN.busy)return;
+  if(!navigator.bluetooth){prnMsg(t('prn.noBt'));shareReceiptImage();return;}
+  prnBusy(true);
+  var phase='connect';
+  try{
+    prnMsg(t('prn.connecting'));
+    var ch=await prnGetChannel();                              // 1re étape : peut ouvrir la fenêtre de choix de Chrome
+    phase='draw';
+    prnMsg(t('prn.preparing'));
+    var rs=await receiptRaster();
+    if(!rs)throw new Error('no receipt');
+    phase='send';
+    prnMsg(t('prn.sending'));
+    await prnSend(ch,rs);
+    prnMsg(t('prn.done'),'ok');toast(t('prn.done'));
+  }catch(e){
+    var n=e&&e.name;
+    if(phase==='connect'){
+      if(n==='NotFoundError')prnMsg(t('prn.cancel'),'bad');
+      else if(n==='ReconnectError')prnMsg(t('prn.again'),'bad');
+      else{PRN.ch=null;prnMsg(t('prn.fail'),'bad');console.error(e);}
+    }else if(phase==='send'){
+      PRN.ch=null;prnMsg(t('prn.lost'),'bad');console.error(e);
+    }else{prnMsg(t('rcpt.imgErr'),'bad');console.error(e);}
+  }finally{prnBusy(false);}
+}
+
+function buildWAMsg(){
+  if(!lastSale)return'';
+  const r=lastSale;
+  const shop=shopName();
+  const d=getDevise();
+  const lines=r.items.map(c=>`- ${c.name} x${c.qty} = ${fmt(c.prix*c.qty)} ${d}`).join('\n');
+  return`Recu ${r.nFact}\n${shop}\n\n${lines}\n\nTOTAL: ${fmt(r.total)} ${d}\n${payLabel(r.mode)}\n\nMerci !`;
+}
+
+function shareWA(){
+  if(!lastSale)return;
+  const msg=buildWAMsg();
+  // Essayer window.open d'abord
+  try{
+    const url='https://wa.me/?text='+encodeURIComponent(msg);
+    const w=window.open(url,'_blank');
+    if(!w||w.closed||typeof w.closed==='undefined'){
+      showWACopy(msg);
+    }
+  }catch(e){showWACopy(msg);}
+}
+
+function showWACopy(msg){
+  const zone=document.getElementById('wa-copy-zone');
+  const txt=document.getElementById('wa-text');
+  if(zone&&txt){
+    zone.style.display='block';
+    txt.value=msg;
+    txt.scrollIntoView({behavior:'smooth'});
+  }
+}
+
+function copyWA(){
+  const txt=document.getElementById('wa-text');
+  if(!txt)return;
+  try{
+    navigator.clipboard.writeText(txt.value).then(()=>toast('✅ Message copié ! Colle-le sur WhatsApp'));
+  }catch(e){
+    txt.select();document.execCommand('copy');
+    toast('✅ Message copié ! Colle-le sur WhatsApp');
+  }
+}
+
+function printRecu(){
+  // Ouvrir une nouvelle fenêtre avec le contenu du reçu
+  const content=document.getElementById('recu-content');
+  if(!content)return;
+  try{
+    const w=window.open('','_blank','width=400,height=600');
+    if(w){
+      w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reçu</title>
+      <style>body{font-family:Arial,sans-serif;margin:0;padding:10px}
+      .ticket{font-family:'Courier New',monospace;font-size:12px}
+      .tc{text-align:center}.tdiv{border-top:1px dashed #000;margin:6px 0}
+      .trow{display:flex;justify-content:space-between}
+      .facture{padding:20px}.f-hdr{display:flex;justify-content:space-between;border-bottom:2px solid #185FA5;padding-bottom:12px;margin-bottom:16px}
+      .f-shop{font-size:16px;font-weight:700;color:#185FA5}
+      table{width:100%;border-collapse:collapse}th{background:#185FA5;color:#fff;padding:6px}td{padding:6px;border-bottom:1px solid #eee}
+      </style></head><body>${content.innerHTML}</body></html>`);
+      w.document.close();
+      setTimeout(()=>{w.print();},500);
+    }else{toast(t('t.popup'),false);}
+  }catch(e){toast(t('t.printNA'),false);}
+}
+
+// ══ RAPPORTS ══
+function renderReports(){
+  const today=new Date().toDateString();
+  const todayS=DB.sorties.filter(s=>new Date(s.date).toDateString()===today);
+  const ca=todayS.reduce((s,x)=>s+Number(x.total),0);
+  const txns=[...new Set(todayS.map(s=>s.facture))];
+  const avg=txns.length?Math.round(ca/txns.length):0;
+  const achat=todayS.reduce((s,x)=>{const p=DB.products.find(pp=>pp.id===x.prodId);return s+(p?p.achat*x.qty:0);},0);
+  const marge=ca>0?Math.round(((ca-achat)/ca)*100):0;
+  const stockVal=DB.products.reduce((s,p)=>s+(p.achat*calcStock(p.id)),0);
+  const al=DB.products.filter(p=>{const s=calcStock(p.id);return s>0&&s<=(p.seuil||5);}).length;
+  const rt=DB.products.filter(p=>calcStock(p.id)<=0).length;
+
+  document.getElementById('rpt-ca').textContent=fmt(ca)+' '+getDevise();
+  document.getElementById('rpt-txn').textContent=txns.length;
+  document.getElementById('rpt-avg').textContent=fmt(avg);
+  document.getElementById('rpt-marge').textContent=marge+'%';
+  document.getElementById('rpt-stock').textContent=fmt(stockVal)+' '+getDevise();
+  document.getElementById('rpt-np').textContent=DB.products.length;
+  document.getElementById('rpt-nal').textContent=al;
+  document.getElementById('rpt-nrt').textContent=rt;
+
+  const salesMap={};DB.sorties.forEach(s=>{salesMap[s.prodId]=(salesMap[s.prodId]||0)+s.qty;});
+  const top=Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  document.getElementById('rpt-top').innerHTML=top.length?top.map(([id,qty])=>{const p=DB.products.find(x=>x.id===id);return`<div class="info-row"><span class="info-k">${p?p.name:id}</span><span class="info-v">${t('rep.sold',{n:qty})}</span></div>`;}).join(''):'<div style="color:var(--text2);font-size:13px;padding:8px">'+t('rep.noSale')+'</div>';
+
+  const now=new Date();
+  const dluo30=DB.products.filter(p=>{if(!p.dluo)return false;return(new Date(p.dluo)-now)/86400000<=30;});
+  document.getElementById('rpt-dluo').innerHTML=dluo30.length?dluo30.map(p=>{const days=Math.round((new Date(p.dluo)-now)/86400000);return`<div class="info-row"><span class="info-k">${p.name}</span><span class="info-v" style="color:${days<0?'var(--red)':'var(--amber)'}">${days<0?t('rep.expired'):days+'j'}</span></div>`;}).join(''):'<div style="color:var(--text2);font-size:13px;padding:8px">'+t('rep.noDluo')+'</div>';
+}
+
+// ══ SCANNER CODE-BARRES ══
+let scanStream=null,scanTimer=null,scanMode='';
+async function openScan(mode){
+  scanMode=mode;
+  if(!('BarcodeDetector' in window)||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    toast(t('t.scanNA'),false);return;
+  }
+  openModal('m-scan');
+  const msg=document.getElementById('scan-msg');
+  msg.textContent=t('t.camOpen');
+  try{
+    scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+    const v=document.getElementById('scan-video');
+    v.srcObject=scanStream;await v.play();
+    let det;
+    try{det=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128','code_39','qr_code']});}
+    catch(e){det=new BarcodeDetector();}
+    msg.textContent=t('s.point');
+    scanTimer=setInterval(async()=>{
+      try{
+        const r=await det.detect(v);
+        if(r&&r.length){const code=String(r[0].rawValue||'').trim();if(code){onScanned(code);}}
+      }catch(e){}
+    },300);
+  }catch(e){
+    stopScan();
+    toast(t('t.camBlocked'),false);
+  }
+}
+function stopScan(){
+  if(scanTimer){clearInterval(scanTimer);scanTimer=null;}
+  if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}
+  const v=document.getElementById('scan-video');if(v)v.srcObject=null;
+  closeModal('m-scan');
+}
+function onScanned(code){
+  const mode=scanMode;
+  stopScan();
+  if(mode==='caisse'){
+    const p=DB.products.find(x=>String(x.barcode||'').trim()===code);
+    if(!p){toast(t('t.unknownCode',{c:code}),false);return;}
+    if(calcStock(p.id)<=0){toast(t('t.outOf',{n:p.name}),false);return;}
+    addToCart(p.id);
+  }else{
+    const idNow=document.getElementById('f-id').value;
+    const other=DB.products.find(x=>String(x.barcode||'').trim()===code&&x.id!==idNow);
+    document.getElementById('f-barcode').value=code;
+    if(other){toast(t('t.codeTaken',{n:other.name}),false);}
+    else{toast(t('t.codeSaved',{c:code}));}
+  }
+}
+
+// ══ TICKET Z ══
+let zFmt='ticket';
+function getZData(){
+  const today=new Date().toDateString();
+  const ts=DB.sorties.filter(s=>new Date(s.date).toDateString()===today);
+  const ca=ts.reduce((a,x)=>a+Number(x.total||0),0);
+  const nb=new Set(ts.map(x=>x.facture)).size;
+  const achat=ts.reduce((a,x)=>{const p=DB.products.find(pp=>pp.id===x.prodId);return a+(p?p.achat*x.qty:0);},0);
+  const marge=ca-achat;
+  const pct=ca>0?Math.round((marge/ca)*100):0;
+  const map={};
+  ts.forEach(x=>{map[x.prodId]=(map[x.prodId]||0)+Number(x.qty||0);});
+  const items=Object.entries(map).map(([id,qty])=>{const p=DB.products.find(pp=>pp.id===id);return{name:p?p.name:id,qty};}).sort((a,b)=>b.qty-a.qty);
+  return{ca,nb,marge,pct,items};
+}
+function openZ(){setZFmt(zFmt);openModal('m-z');}
+function setZFmt(f){
+  zFmt=f;
+  const on='background:#185FA5;color:#fff',off='background:#e5e5e5;color:#333';
+  document.getElementById('z-b-ticket').style.cssText=f==='ticket'?on:off;
+  document.getElementById('z-b-a4').style.cssText=f==='a4'?on:off;
+  buildZ();
+}
+function buildZ(){
+  const z=getZData(),d=getDevise();
+  const shop=shopName();
+  const now=new Date();
+  const dateStr=now.toLocaleDateString(loc())+' '+now.toLocaleTimeString(loc(),{hour:'2-digit',minute:'2-digit'});
+  const empty='<div style="text-align:center;padding:8px">'+t('z.none')+'</div>';
+  let html;
+  if(zFmt==='a4'){
+    const rows=z.items.map(i=>`<tr><td>${i.name}</td><td style="text-align:right"><b>${i.qty}</b></td></tr>`).join('');
+    html=`<div class="facture">
+      <div style="text-align:center;font-size:18px;font-weight:700;color:#185FA5">${shop}</div>
+      <div style="text-align:center;font-size:20px;font-weight:700;margin:6px 0">${t('z.titleA4')}</div>
+      <div style="text-align:center;font-size:12px;color:#666;margin-bottom:14px">${dateStr}</div>
+      <table class="f-tbl" style="margin-bottom:14px"><tbody>
+        <tr><td>${t('z.nb')}</td><td style="text-align:right"><b>${z.nb}</b></td></tr>
+        <tr><td>${t('z.ca')}</td><td style="text-align:right"><b>${fmt(z.ca)} ${d}</b></td></tr>
+        <tr><td>${t('z.margin')}</td><td style="text-align:right"><b>${fmt(z.marge)} ${d} (${z.pct}%)</b></td></tr>
+      </tbody></table>
+      <div style="font-weight:700;margin-bottom:4px">${t('z.sold')}</div>
+      ${z.items.length?`<table class="f-tbl"><thead><tr><th>${t('z.product')}</th><th style="text-align:right">${t('z.qty')}</th></tr></thead><tbody>${rows}</tbody></table>`:empty}
+    </div>`;
+  }else{
+    const lines=z.items.map(i=>`<div class="trow"><span>${i.name}</span><span>x${i.qty}</span></div>`).join('');
+    html=`<div class="ticket">
+      <div class="tc" style="font-weight:700;font-size:14px">${shop}</div>
+      <div class="tc" style="font-weight:700">${t('z.t')}</div>
+      <div class="tc" style="font-size:11px">${dateStr}</div>
+      <hr class="tdiv">
+      <div class="trow"><span>${t('z.nbS')}</span><span>${z.nb}</span></div>
+      <div class="trow" style="font-weight:700;font-size:14px"><span>${t('z.caDay')}</span><span>${fmt(z.ca)} ${d}</span></div>
+      <div class="trow"><span>${t('z.marginC')}</span><span>${fmt(z.marge)} ${d} (${z.pct}%)</span></div>
+      <hr class="tdiv">
+      <div class="tc" style="font-weight:700">${t('z.soldCaps')}</div>
+      ${z.items.length?lines:empty}
+      <hr class="tdiv">
+      <div class="tc" style="font-size:10px">Powered by HOMS-STOCK · Homslo/Vision</div>
+    </div>`;
+  }
+  document.getElementById('z-content').innerHTML=html;
+}
+function printZ(){
+  const content=document.getElementById('z-content');
+  if(!content)return;
+  try{
+    const w=window.open('','_blank','width=400,height=600');
+    if(w){
+      const width=zFmt==='ticket'?'58mm':'auto';
+      w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ticket Z</title>
+      <style>body{font-family:Arial,sans-serif;margin:0;padding:10px;width:${width}}
+      .ticket{font-family:'Courier New',monospace;font-size:12px}
+      .tc{text-align:center}.tdiv{border:none;border-top:1px dashed #000;margin:6px 0}
+      .trow{display:flex;justify-content:space-between}
+      .facture{padding:20px}table{width:100%;border-collapse:collapse}th{background:#185FA5;color:#fff;padding:6px;text-align:left}td{padding:6px;border-bottom:1px solid #eee}
+      </style></head><body>${content.innerHTML}</body></html>`);
+      w.document.close();
+      setTimeout(()=>{w.print();},500);
+    }else{toast(t('t.popup'),false);}
+  }catch(e){toast(t('t.printNA'),false);}
+}
+function shareZ(){
+  const z=getZData(),d=getDevise();
+  const shop=shopName();
+  const lines=z.items.map(i=>`- ${i.name} x${i.qty}`).join('\n');
+  const msg=`Ticket Z - ${shop}\n${new Date().toLocaleDateString('fr-FR')}\n\nVentes: ${z.nb}\nCA: ${fmt(z.ca)} ${d}\nMarge: ${fmt(z.marge)} ${d} (${z.pct}%)\n\nProduits vendus:\n${lines||'Aucune vente'}`;
+  try{
+    const w=window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+    if(!w)throw 0;
+  }catch(e){
+    try{navigator.clipboard.writeText(msg).then(()=>toast('✅ Message copié ! Colle-le sur WhatsApp'));}
+    catch(e2){toast('⚠️ WhatsApp indisponible ici',false);}
+  }
+}
+
+// ══ BILAN (semaine / mois / année) ══
+let bPer='month',bOff=0;
+function bRange(per,off){
+  const d=new Date();let a,b;
+  if(per==='week'){
+    const day=(d.getDay()+6)%7;
+    a=new Date(d.getFullYear(),d.getMonth(),d.getDate()-day+off*7);
+    b=new Date(a.getFullYear(),a.getMonth(),a.getDate()+7);
+  }else if(per==='month'){
+    a=new Date(d.getFullYear(),d.getMonth()+off,1);
+    b=new Date(d.getFullYear(),d.getMonth()+off+1,1);
+  }else{
+    a=new Date(d.getFullYear()+off,0,1);
+    b=new Date(d.getFullYear()+off+1,0,1);
+  }
+  return{a,b};
+}
+function bLabel(per,r){
+  const f=x=>x.toLocaleDateString(loc());
+  if(per==='week'){const l=new Date(r.b.getFullYear(),r.b.getMonth(),r.b.getDate()-1);return t('bl.weekOf',{a:f(r.a),b:f(l)});}
+  if(per==='month'){const mt=r.a.toLocaleDateString(loc(),{month:'long',year:'numeric'});return mt.charAt(0).toUpperCase()+mt.slice(1);}
+  return t('bl.year',{y:r.a.getFullYear()});
+}
+function bStats(r){
+  const inR=x=>{const t=new Date(x.date);return t>=r.a&&t<r.b;};
+  const ts=DB.sorties.filter(inR);
+  const ca=ts.reduce((n,x)=>n+Number(x.total||0),0);
+  const nb=new Set(ts.map(x=>x.facture)).size;
+  const cout=ts.reduce((n,x)=>{const p=DB.products.find(pp=>pp.id===x.prodId);return n+(p?p.achat*x.qty:0);},0);
+  const achats=DB.entrees.filter(inR).reduce((n,x)=>{
+    const p=DB.products.find(pp=>pp.id===x.prodId);
+    const pu=Number(x.prix)||(p?Number(p.achat):0)||0;
+    return n+pu*Number(x.qty||0);
+  },0);
+  const map={};
+  ts.forEach(x=>{map[x.prodId]=(map[x.prodId]||0)+Number(x.qty||0);});
+  const top=Object.entries(map).map(([id,qty])=>{const p=DB.products.find(pp=>pp.id===id);return{name:p?p.name:id,qty};})
+    .sort((x,y)=>y.qty-x.qty).slice(0,5);
+  return{ca,nb,marge:ca-cout,achats,top};
+}
+function bEcart(now,before){
+  const d=getDevise();
+  const diff=now-before;
+  if(before===0)return diff===0?'=':t('bl.new');
+  const pct=Math.round((diff/Math.abs(before))*100);
+  if(diff===0)return '= (0%)';
+  return (diff>0?'▲ +':'▼ ')+fmt(diff)+' '+d+' ('+(diff>0?'+':'')+pct+'%)';
+}
+function getBilan(){
+  const r=bRange(bPer,bOff),prev=bRange(bPer,bOff-1);
+  const st=bStats(r),pv=bStats(prev);
+  const stockVal=DB.products.reduce((n,p)=>n+(p.achat*calcStock(p.id)),0);
+  return{label:bLabel(bPer,r),st,pv,stockVal,
+    ecartCA:bEcart(st.ca,pv.ca),ecartMarge:bEcart(st.marge,pv.marge)};
+}
+function openBilan(){setBPer(bPer);openModal('m-bilan');}
+function setBPer(p){bPer=p;bOff=0;renderBilan();}
+function moveBilan(n){if(bOff+n>0)return;bOff+=n;renderBilan();}
+function renderBilan(){
+  const on='background:#185FA5;color:#fff',off='background:#e5e5e5;color:#333';
+  ['week','month','year'].forEach(k=>{document.getElementById('b-b-'+k).style.cssText=(k===bPer)?on:off;});
+  document.getElementById('b-next').style.opacity=bOff>=0?'0.3':'1';
+  const g=getBilan(),d=getDevise(),shop=shopName();
+  document.getElementById('b-label').textContent=g.label;
+  const top=g.st.top.length
+    ?g.st.top.map((t,i)=>`<tr><td>${i+1}. ${t.name}</td><td style="text-align:right"><b>${t.qty}</b></td></tr>`).join('')
+    :'<tr><td colspan="2" style="text-align:center">'+t('rep.noSale')+'</td></tr>';
+  document.getElementById('b-content').innerHTML=`<div class="facture">
+    <div style="text-align:center;font-size:16px;font-weight:700;color:#185FA5">${shop}</div>
+    <div style="text-align:center;font-weight:700;margin:4px 0">${t('bl.title',{l:g.label})}</div>
+    <table class="f-tbl"><tbody>
+      <tr><td>${t('z.nb')}</td><td style="text-align:right"><b>${g.st.nb}</b></td></tr>
+      <tr><td>${t('z.ca')}</td><td style="text-align:right"><b>${fmt(g.st.ca)} ${d}</b></td></tr>
+      <tr><td>${t('z.margin')}</td><td style="text-align:right"><b>${fmt(g.st.marge)} ${d}</b></td></tr>
+      <tr><td>${t('bl.purchases')}</td><td style="text-align:right"><b>${fmt(g.st.achats)} ${d}</b></td></tr>
+      <tr><td>${t('bl.stockToday')}</td><td style="text-align:right"><b>${fmt(g.stockVal)} ${d}</b></td></tr>
+    </tbody></table>
+    <div style="font-weight:700;margin:6px 0 0">${t('bl.gap')}</div>
+    <table class="f-tbl"><tbody>
+      <tr><td>${t('bl.ca')}</td><td style="text-align:right"><b>${g.ecartCA}</b></td></tr>
+      <tr><td>${t('z.margin')}</td><td style="text-align:right"><b>${g.ecartMarge}</b></td></tr>
+    </tbody></table>
+    <div style="font-weight:700;margin:6px 0 0">${t('bl.top5')}</div>
+    <table class="f-tbl"><thead><tr><th>${t('z.product')}</th><th style="text-align:right">${t('z.qty')}</th></tr></thead><tbody>${top}</tbody></table>
+  </div>`;
+}
+function printBilan(){
+  const content=document.getElementById('b-content');
+  if(!content)return;
+  try{
+    const w=window.open('','_blank','width=500,height=700');
+    if(w){
+      w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Bilan</title>
+      <style>body{font-family:Arial,sans-serif;margin:0;padding:16px}
+      .facture{padding:10px}table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+      th{background:#185FA5;color:#fff;padding:8px;text-align:left}td{padding:8px;border-bottom:1px solid #eee}
+      </style></head><body>${content.innerHTML}</body></html>`);
+      w.document.close();
+      setTimeout(()=>{w.print();},500);
+    }else{toast(t('t.popup'),false);}
+  }catch(e){toast(t('t.printNA'),false);}
+}
+function shareBilan(){
+  const g=getBilan(),d=getDevise();
+  const shop=shopName();
+  const top=g.st.top.map((t,i)=>`${i+1}. ${t.name} x${t.qty}`).join('\n');
+  const msg=`Bilan - ${shop}\n${g.label}\n\nVentes: ${g.st.nb}\nCA: ${fmt(g.st.ca)} ${d}\nMarge: ${fmt(g.st.marge)} ${d}\nAchats: ${fmt(g.st.achats)} ${d}\nValeur stock: ${fmt(g.stockVal)} ${d}\n\nÉcart CA: ${g.ecartCA}\nÉcart marge: ${g.ecartMarge}\n\nTop 5:\n${top||'Aucune vente'}`;
+  try{
+    const w=window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+    if(!w)throw 0;
+  }catch(e){
+    try{navigator.clipboard.writeText(msg).then(()=>toast('✅ Message copié ! Colle-le sur WhatsApp'));}
+    catch(e2){toast('⚠️ WhatsApp indisponible ici',false);}
+  }
+}
+
+// ══ PARAMÈTRES BOUTIQUE ══
+let editField='';
+function openEdit(field,label,current){
+  editField=field;
+  document.getElementById('m-edit-ttl').textContent='✏️ '+label;
+  document.getElementById('m-edit-lbl').textContent=label;
+  document.getElementById('m-edit-val').value=current||'';
+  document.getElementById('m-edit-val').placeholder=label+'...';
+  openModal('m-edit');
+  setTimeout(()=>document.getElementById('m-edit-val').focus(),300);
+}
+function saveEdit(){
+  const v=document.getElementById('m-edit-val').value.trim();
+  DB.settings[editField]=v;
+  saveDB();
+  const idMap={shopName:'set-name',addr:'set-addr',phone:'set-phone',email:'set-email',msgRecu:'set-msg'};
+  const el=document.getElementById(idMap[editField]);
+  if(el)el.textContent=v||t('set.notM');
+  if(editField==='shopName'){
+    document.getElementById('home-shop').textContent=shopName();
+    document.getElementById('set-name').textContent=shopName();
+  }
+  closeModal('m-edit');
+  toast(t('t.saved',{v:v}));
+}
+function editShopName(){openEdit('shopName',t('set.shopName'),DB.settings.shopName);}
+function editShopAddress(){openEdit('addr',t('set.addr'),DB.settings.addr);}
+function editShopPhone(){openEdit('phone',t('set.phone'),DB.settings.phone);}
+function editShopEmail(){openEdit('email',t('set.email'),DB.settings.email);}
+function editMsgRecu(){openEdit('msgRecu',t('set.thanks'),DB.settings.msgRecu||t('rcpt.thanks'));}
+function openLogoModal(){
+  document.getElementById('logo-url').value=DB.settings.logo&&DB.settings.logo.startsWith('http')?DB.settings.logo:'';
+  openModal('m-logo');
+}
+function saveLogoUrl(){
+  const url=document.getElementById('logo-url').value.trim();
+  if(!url){toast(t('t.urlInvalid'),false);return;}
+  DB.settings.logo=url;saveDB();refreshHome();
+  closeModal('m-logo');toast(t('t.logoSaved'));
+}
+function handleLogo(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    DB.settings.logo=e.target.result;saveDB();refreshHome();
+    closeModal('m-logo');toast(t('t.logoSaved'));
+  };
+  reader.readAsDataURL(file);
+}
+function selectDevise(d){
+  DB.settings.devise=d;saveDB();
+  ['FCFA','XOF','USD','EUR','GNF'].forEach(x=>{
+    const el=document.getElementById('chk-'+x);
+    if(el){el.textContent=x===d?'✓':'○';el.style.color=x===d?'var(--green)':'var(--text3)';}
+  });
+  // Mettre à jour tous les labels devise dans l'appli
+  document.querySelectorAll('.lbl-devise').forEach(el=>el.textContent=d);
+  toast(t('t.currency',{d:d}));
+  renderProds();refreshHome();
+}
+function getDevise(){return DB.settings.devise||'FCFA';}
+function selectRecuFmt(f){
+  DB.settings.recuFmt=f;saveDB();
+  ['ticket','facture'].forEach(x=>{
+    const el=document.getElementById('chk-'+x);
+    if(el){el.textContent=x===f?'✓':'○';el.style.color=x===f?'var(--green)':'var(--text3)';}
+  });
+  toast(t('t.format',{f:t(f==='facture'?'fmt.facture':'fmt.ticket')}));
+}
+function toggleRecuFmt(){
+  selectRecuFmt(DB.settings.recuFmt==='facture'?'ticket':'facture');
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='homs-stock-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  toast(t('t.exported'));
+}
+function resetData(){
+  if(confirm(t('rs.confirm'))){
+    DB={products:[],entrees:[],sorties:[],settings:{shopName:'Ma Boutique',devise:'FCFA',recuFmt:'ticket',theme:'light',msgRecu:''}};
+    saveDB();refreshHome();renderProds();toast(t('t.resetDone'));
+  }
+}
+
+// ══ CLOUD SYNC ══
+async function initCloud(){
+  if(!SESSION)return;
+  try{
+    await ensureToken();
+    const r=await fetch(`${SB_URL}/rest/v1/produits?limit=1`,{headers:sbH()});
+    if(r.ok){
+      toast(t('t.cloudOn'));
+      const prods=await sbReq('produits','GET',null,'?order=created_at.asc');
+      const ents=await sbReq('entrees','GET',null,'?order=date.asc');
+      const sorts=await sbReq('sorties','GET',null,'?order=date.asc');
+      if(prods&&prods.length>0){
+        DB.products=prods.map(p=>({id:p.id,name:p.name,cat:p.cat,achat:p.achat,vente:p.vente,stockInit:p.stock_init,seuil:p.seuil,dluo:p.dluo||'',barcode:p.barcode||''}));
+        if(ents)DB.entrees=ents.map(e=>({id:e.id,prodId:e.prod_id,date:e.date,qty:e.qty,prix:e.prix,fournisseur:e.fournisseur,lot:e.lot,dluo:e.dluo}));
+        if(sorts)DB.sorties=sorts.map(s=>({id:s.id,prodId:s.prod_id,date:s.date,qty:s.qty,prix:s.prix,total:s.total,mode:s.mode,facture:s.facture}));
+        saveDB();refreshHome();renderProds();toast(t('t.synced'));
+      }
+    }else{toast(t('t.offline'),false);}
+  }catch(e){toast(t('t.offline'),false);}
+}
+
+// ══ ÉCRAN DE CONNEXION : fonctions ══
+function showAuth(msg){document.getElementById('auth-screen').style.display='flex';setAuthMsg(msg||'');}
+function hideAuth(){document.getElementById('auth-screen').style.display='none';}
+function setAuthMsg(m,ok){const e=document.getElementById('auth-msg');e.textContent=m||'';e.style.color=ok?'#16a34a':'#dc2626';}
+function setAuthBusy(b){['auth-btn-login','auth-btn-signup','auth-btn-forgot'].forEach(id=>{const e=document.getElementById(id);if(e){e.disabled=b;e.style.opacity=b?'0.6':'1';}});}
+function authErr(r){
+  const d=r.data||{};const m=String(d.msg||d.error_description||d.message||d.error||'');
+  if(r.net)return t('au.noNet');
+  if(/invalid login/i.test(m))return t('au.bad');
+  if(/already registered|already been registered/i.test(m))return t('au.exists');
+  if(/not confirmed/i.test(m))return t('au.confirm');
+  if(/different from the old|same as the old/i.test(m))return t('au.diff');
+  if(/password/i.test(m))return t('au.pw6');
+  if(/rate limit/i.test(m))return t('au.rate');
+  return m||t('au.err',{s:r.status});
+}
+async function doLogin(){
+  const email=document.getElementById('auth-email').value.trim().toLowerCase();
+  const pw=document.getElementById('auth-pw').value;
+  if(!email||!pw){setAuthMsg(t('au.fill'));return;}
+  setAuthBusy(true);setAuthMsg(t('au.logging'),true);
+  const r=await authCall('token?grant_type=password',{email,password:pw});
+  setAuthBusy(false);
+  if(r.ok&&r.data.access_token){
+    saveSession(toSession(r.data));
+    document.getElementById('auth-pw').value='';
+    hideAuth();bootApp();
+  }else{setAuthMsg(authErr(r));}
+}
+async function doSignup(){
+  const email=document.getElementById('auth-email').value.trim().toLowerCase();
+  const pw=document.getElementById('auth-pw').value;
+  if(!email||!pw){setAuthMsg(t('au.fill'));return;}
+  if(pw.length<6){setAuthMsg(t('au.pw6'));return;}
+  setAuthBusy(true);setAuthMsg(t('au.creating'),true);
+  const r=await authCall('signup',{email,password:pw});
+  setAuthBusy(false);
+  if(r.ok&&r.data.access_token){
+    saveSession(toSession(r.data));
+    document.getElementById('auth-pw').value='';
+    hideAuth();bootApp();
+  }else if(r.ok){
+    setAuthMsg(t('au.created'),true);
+  }else{setAuthMsg(authErr(r));}
+}
+let RECOVERY=null;
+async function doForgot(){
+  const email=document.getElementById('auth-email').value.trim().toLowerCase();
+  if(!email){setAuthMsg(t('au.needEmail'));return;}
+  setAuthBusy(true);setAuthMsg(t('au.sending'),true);
+  const back=encodeURIComponent(location.origin+'/');
+  const r=await authCall('recover?redirect_to='+back,{email});
+  setAuthBusy(false);
+  if(r.ok)setAuthMsg(t('au.sent'),true);
+  else setAuthMsg(authErr(r));
+}
+function parseHash(){
+  const h=String(location.hash||'').replace(/^#/,'');
+  if(!h)return null;
+  const q=new URLSearchParams(h);
+  return{type:q.get('type'),access_token:q.get('access_token'),refresh_token:q.get('refresh_token'),expires_in:q.get('expires_in'),error:q.get('error_code')||q.get('error')};
+}
+function showReset(){document.getElementById('reset-screen').style.display='flex';}
+function hideReset(){document.getElementById('reset-screen').style.display='none';}
+function setResetMsg(m,ok){const e=document.getElementById('reset-msg');e.textContent=m||'';e.style.color=ok?'#16a34a':'#dc2626';}
+async function doReset(){
+  if(!RECOVERY){hideReset();showAuth(t('au.expired'));return;}
+  const p1=document.getElementById('reset-pw1').value;
+  const p2=document.getElementById('reset-pw2').value;
+  if(p1.length<6){setResetMsg(t('au.pw6'));return;}
+  if(p1!==p2){setResetMsg(t('rs.differ'));return;}
+  const btn=document.getElementById('reset-btn');btn.disabled=true;setResetMsg(t('rs.saving'),true);
+  try{
+    const r=await fetch(SB_URL+'/auth/v1/user',{method:'PUT',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+RECOVERY.access_token},body:JSON.stringify({password:p1})});
+    const txt=await r.text();let j={};try{j=txt?JSON.parse(txt):{};}catch(e){}
+    btn.disabled=false;
+    if(!r.ok){setResetMsg(authErr({ok:false,status:r.status,data:j,net:false}));return;}
+    saveSession({access_token:RECOVERY.access_token,refresh_token:RECOVERY.refresh_token,
+      expires_at:Math.floor(Date.now()/1000)+(Number(RECOVERY.expires_in)||3600),user:{id:j.id,email:j.email}});
+    RECOVERY=null;
+    document.getElementById('reset-pw1').value='';document.getElementById('reset-pw2').value='';
+    hideReset();hideAuth();bootApp();
+    try{toast(t('t.pwChanged'));}catch(e){}
+  }catch(e){btn.disabled=false;setResetMsg(t('au.noNet'));}
+}
+// ══ ESSAI 14 JOURS + ADMIN ══
+let PROFIL=null,IS_ADMIN=false,ADMIN_ROWS=[];
+function escH(x){return String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function joursRestants(fin){const t=Date.parse(fin);if(isNaN(t))return null;return Math.ceil((t-Date.now())/864e5);}
+function profilKey(){return 'homs_profil_'+(SESSION&&SESSION.user?SESSION.user.id:'');}
+// 'ok' (actif ou inconnu) | 'essai' | 'fini' | 'bloque'
+function etatAcces(p){
+  if(!p)return 'ok';
+  if(p.statut==='bloque')return 'bloque';
+  if(p.statut==='actif')return 'ok';
+  const j=joursRestants(p.essai_fin);
+  if(j===null)return 'ok';
+  return j>0?'essai':'fini';
+}
+function appliquerProfil(){
+  const etat=etatAcces(PROFIL);
+  const ban=document.getElementById('essai-banner');
+  const blk=document.getElementById('bloque-screen');
+  const card=document.getElementById('admin-card');
+  if(card)card.style.display=IS_ADMIN?'':'none';
+  if(ban){
+    if(IS_ADMIN||etat!=='essai'){ban.style.display='none';}
+    else{
+      const j=joursRestants(PROFIL.essai_fin);
+      ban.textContent=t(j>1?'es.leftN':'es.left',{j:j});
+      ban.style.background=j<=3?'#FEE2E2':'#FEF3C7';
+      ban.style.color=j<=3?'#991B1B':'#7A4A00';
+      ban.style.display='block';
+    }
+    document.documentElement.style.setProperty('--bh',(ban.style.display==='block'?ban.offsetHeight:0)+'px');
+  }
+  if(blk){
+    if(!IS_ADMIN&&(etat==='bloque'||etat==='fini')){
+      document.getElementById('bloque-titre').textContent=etat==='bloque'?t('bq.susp'):t('bq.ended');
+      document.getElementById('bloque-msg').textContent=etat==='bloque'
+        ?t('bq.msgSusp')
+        :t('bq.msgEnd');
+      blk.style.display='flex';
+    }else{blk.style.display='none';}
+  }
+}
+async function loadProfil(){
+  if(!SESSION||!SESSION.user)return;
+  const uid=SESSION.user.id;
+  let cache=null;
+  try{const c=localStorage.getItem(profilKey());if(c)cache=JSON.parse(c);}catch(e){}
+  if(cache){PROFIL=cache.profil||null;IS_ADMIN=!!cache.admin;appliquerProfil();}
+  const rows=await sbReq('profils','GET',null,'?select=user_id,statut,essai_fin,cree_le&user_id=eq.'+encodeURIComponent(uid));
+  const adm=await sbReq('admins','GET',null,'?select=user_id&user_id=eq.'+encodeURIComponent(uid));
+  if(rows===null&&adm===null){appliquerProfil();return;}
+  PROFIL=(Array.isArray(rows)&&rows.length)?rows[0]:null;
+  IS_ADMIN=Array.isArray(adm)&&adm.length>0;
+  try{localStorage.setItem(profilKey(),JSON.stringify({profil:PROFIL,admin:IS_ADMIN}));}catch(e){}
+  appliquerProfil();
+}
+async function retryProfil(){
+  await loadProfil();
+  const etat=etatAcces(PROFIL);
+  if(IS_ADMIN||etat==='ok'||etat==='essai')toast(t('t.restored'));
+  else toast(t('t.stillSusp'),false);
+}
+function resetProfilUI(){
+  PROFIL=null;IS_ADMIN=false;ADMIN_ROWS=[];
+  ['essai-banner','bloque-screen'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+  const card=document.getElementById('admin-card');if(card)card.style.display='none';
+  try{closeModal('m-admin');}catch(e){}
+}
+async function openAdmin(){
+  if(!IS_ADMIN)return;
+  openModal('m-admin');
+  await renderAdmin();
+}
+async function renderAdmin(){
+  const box=document.getElementById('admin-list');
+  box.innerHTML='<div style="padding:14px;text-align:center;color:#666">'+t('ad.loading')+'</div>';
+  const rows=await sbReq('profils','GET',null,'?select=user_id,email,statut,cree_le,essai_fin&order=cree_le.desc');
+  if(rows===null){box.innerHTML='<div style="padding:14px;text-align:center;color:#dc2626">'+t('ad.fail')+'</div>';return;}
+  ADMIN_ROWS=rows;
+  document.getElementById('admin-count').textContent=t(rows.length>1?'ad.countN':'ad.count1',{n:rows.length});
+  const me=SESSION&&SESSION.user?SESSION.user.id:'';
+  const bt=(txt,act,id,bg)=>'<button style="flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:11px;font-weight:700;color:#fff;background:'+bg+';cursor:pointer" onclick="adminAct(\''+escH(id)+'\',\''+act+'\')">'+txt+'</button>';
+  box.innerHTML=rows.map(r=>{
+    const etat=etatAcces(r),j=joursRestants(r.essai_fin);
+    const lab=etat==='ok'?t('ad.active'):etat==='bloque'?t('ad.blocked'):etat==='essai'?t('ad.trial',{j:j}):t('ad.trialEnd');
+    const date=r.cree_le?new Date(r.cree_le).toLocaleDateString(loc()):'-';
+    let btns='';
+    if(r.user_id===me){btns='<div style="font-size:11px;color:#666">'+t('ad.me')+'</div>';}
+    else{
+      if(r.statut!=='actif')btns+=bt(t('ad.activate'),'activer',r.user_id,'#16a34a');
+      if(r.statut!=='bloque')btns+=bt(t('ad.block'),'bloquer',r.user_id,'#dc2626');
+      if(r.statut!=='actif')btns+=bt(t('ad.plus7'),'plus7',r.user_id,'#185FA5');
+      btns='<div style="display:flex;gap:6px">'+btns+'</div>';
+    }
+    return '<div style="padding:10px 16px;border-top:1px solid #eee"><div style="font-weight:700;font-size:13px;word-break:break-all">'+escH(r.email||t('ad.noEmail'))+'</div><div style="font-size:12px;color:#666;margin:2px 0 8px">'+lab+' · '+t('ad.joined')+' '+date+'</div>'+btns+'</div>';
+  }).join('')||'<div style="padding:14px;text-align:center;color:#666">'+t('ad.none')+'</div>';
+}
+async function adminAct(id,action){
+  if(!IS_ADMIN)return;
+  if(SESSION&&SESSION.user&&SESSION.user.id===id){toast(t('ad.self'),false);return;}
+  let body;
+  if(action==='activer'){body={statut:'actif'};}
+  else if(action==='bloquer'){if(!confirm(t('ad.confirmBlock')))return;body={statut:'bloque'};}
+  else if(action==='plus7'){
+    const row=ADMIN_ROWS.find(r=>r.user_id===id);
+    const base=Math.max(Date.now(),row?(Date.parse(row.essai_fin)||0):0);
+    body={essai_fin:new Date(base+7*864e5).toISOString(),statut:'essai'};
+  }else return;
+  const r=await sbReq('profils','PATCH',body,'?user_id=eq.'+encodeURIComponent(id));
+  if(r===null)toast(t('ad.refused'),false);
+  else if(!r.length)toast(t('ad.nothing'),false);
+  else toast(t('ad.updated'));
+  await renderAdmin();
+}
+
+async function doLogout(){
+  if(!confirm(t('lo.confirm')))return;
+  const tok=SESSION&&SESSION.access_token;
+  if(tok)authCall('logout',{},tok);
+  clearSession();DB=defaultDB();cart=[];payMode='cash';resetProfilUI();
+  try{nav('s-home');}catch(e){}
+  showAuth('');
+}
+function adoptLegacy(){
+  try{
+    const k=dbKey();
+    if(localStorage.getItem(k))return;
+    const flag='homs_legacy_asked_'+(SESSION&&SESSION.user?SESSION.user.id:'');
+    if(localStorage.getItem(flag))return;
+    const oldData=localStorage.getItem('homs_v3');
+    if(!oldData)return;
+    localStorage.setItem(flag,'1');
+    if(confirm(t('lo.legacy'))){localStorage.setItem(k,oldData);}
+  }catch(e){}
+}
+function bootApp(){
+  adoptLegacy();
+  loadDB();
+  applyTheme(DB.settings.theme||'light');
+  document.querySelectorAll('.lbl-devise').forEach(el=>el.textContent=DB.settings.devise||'FCFA');
+  refreshHome();
+  const em=document.getElementById('acct-email');
+  if(em&&SESSION&&SESSION.user)em.textContent=SESSION.user.email||'-';
+  initCloud();
+  loadProfil();
+}
+async function startAuth(){
+  const hp=parseHash();
+  if(hp&&(hp.access_token||hp.error)){
+    try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
+    if(hp.error){showAuth(t('au.linkExp'));return;}
+    if(hp.type==='recovery'&&hp.access_token){RECOVERY=hp;showReset();return;}
+  }
+  SESSION=readSession();
+  if(SESSION&&SESSION.access_token){
+    if(SESSION.expires_at-Math.floor(Date.now()/1000)<60){
+      const ok=await refreshSession();
+      if(!ok){showAuth(t('au.session'));return;}
+    }
+    hideAuth();bootApp();
+  }else{showAuth('');}
+}
+
+// ══ INIT ══
+applyLang();
+startAuth();
+</script>
+</body>
+</html>
